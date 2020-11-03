@@ -4,8 +4,10 @@ import (
 	"bufio"
 	"encoding/csv"
 	"fmt"
+	"io"
 	"log"
 	"os"
+	"strings"
 )
 
 func writeDaten() {
@@ -27,17 +29,20 @@ func writeDaten() {
 	scanner.Scan()
 	barcode := scanner.Text()
 
-	fmt.Print("Please, write a name: ")
+	fmt.Print("Please, write a name (max. 150 character): ")
 	scanner.Scan()
 	name := scanner.Text()
+	name = charLimiter(name, 15)
 
-	fmt.Print("Please, write a category: ")
+	fmt.Print("Please, write a category (max. 20 character): ")
 	scanner.Scan()
 	category := scanner.Text()
+	category = charLimiter(category, 20)
 
-	fmt.Print("Please, write a description: ")
+	fmt.Print("Please, write a description (max. 500 character): ")
 	scanner.Scan()
 	description := scanner.Text()
+	description = charLimiter(description, 50)
 
 	//creating a slice "product", which holds input as it's elements
 	product := []string{barcode, name, category, description}
@@ -53,4 +58,21 @@ func writeDaten() {
 		log.Fatal(err)
 	}
 
+}
+
+func charLimiter(s string, limit int) string {
+	//create a new reader, that is gonna read through s string
+	reader := strings.NewReader(s)
+	//create a buffer, who's size gonna be limited
+	buff := make([]byte, limit)
+	//using ReadAtLeast we gonna read (s) to buff until it has read at least minimum byte (limit)
+	n, _ := io.ReadAtLeast(reader, buff, limit)
+	if n != 0 {
+		if len(s) > limit {
+			fmt.Printf("You wrote %d character. Only %d of them will be accepted\n", len(s), limit)
+		}
+		return string(buff)
+	} else {
+		return s
+	}
 }
