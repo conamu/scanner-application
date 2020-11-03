@@ -32,7 +32,7 @@ func writeDaten() {
 	fmt.Print("Please, write a name (max. 150 character): ")
 	scanner.Scan()
 	name := scanner.Text()
-	name = charLimiter(name, 15)
+	name = charLimiter(name, 150)
 
 	fmt.Print("Please, write a category (max. 20 character): ")
 	scanner.Scan()
@@ -42,7 +42,7 @@ func writeDaten() {
 	fmt.Print("Please, write a description (max. 500 character): ")
 	scanner.Scan()
 	description := scanner.Text()
-	description = charLimiter(description, 50)
+	description = charLimiter(description, 500)
 
 	//creating a slice "product", which holds input as it's elements
 	product := []string{barcode, name, category, description}
