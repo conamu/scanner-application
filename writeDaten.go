@@ -65,14 +65,15 @@ func charLimiter(s string, limit int) string {
 	reader := strings.NewReader(s)
 	//create a buffer, who's size gonna be limited
 	buff := make([]byte, limit)
-	//using ReadAtLeast we gonna read (s) to buff until it has read at least minimum byte (limit)
+	//using ReadAtLeast we gonna read (s) into buff until it has read at least minimum byte (limit)
+	//it will read also futher, but buff is limited by (limit) and it will not take more characters than that
 	n, _ := io.ReadAtLeast(reader, buff, limit)
 	if n != 0 {
 		if len(s) > limit {
 			fmt.Printf("You wrote %d character. Only %d of them will be accepted\n", len(s), limit)
 		}
 		return string(buff)
-	} else {
-		return s
 	}
+	return s
+
 }
