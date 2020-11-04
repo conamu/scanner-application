@@ -18,10 +18,10 @@ func check(err error) {
 func main() {
 	initMenus()
 	scanner := bufio.NewScanner(os.Stdin)
-	main := menustyling.GetStoredMenu("main")
-	main.DisplayMenu()
+	mainM := menustyling.GetStoredMenu("main")
+	mainM.DisplayMenu()
 
-	switch main.GetInputData() {
+	switch mainM.GetInputData() {
 	case "1": // Get Data of one Entry
 		fmt.Println("Please enter or scan a code.")
 		scanner.Scan()
@@ -34,5 +34,7 @@ func main() {
 	case "q": // Quit programm
 		log.Println("pressed exit, programm Exiting.\nBye!")
 		os.Exit(0)
+	default:
+		main()
 	}
 }
