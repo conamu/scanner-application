@@ -31,13 +31,18 @@ func main() {
 		case "2": // Edit one Entry based on Barcode
 		case "3": // Delete one Entry based on Barcode
 		case "4": // Add one Entry
-      		writeDaten()
+			writeDaten()
 		case "5": // Get data from endless codes, terminate with strg+c or "end" code
-			for true{
+			loop := true
+			for loop {
 				scanner.Scan()
-				csvRead(scanner.Text(), mainMenu.GetInputData())
+				loop = csvRead(scanner.Text(), mainMenu.GetInputData())
 			}
 		case "6": // Add endless entries, terminate with strg+c or "end" code
+			loop := true
+			for loop {
+				loop = writeDaten()
+			}
 		case "q": // Quit programm
 			log.Println("pressed exit, programm Exiting.\nBye!")
 			os.Exit(0)

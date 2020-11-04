@@ -10,7 +10,7 @@ import (
 	"strings"
 )
 
-func writeDaten() {
+func writeDaten() bool {
 
 	var path = "data/testDatabase.csv"
 	//open a file with flags: to append (O_Append) and to write(O_WRONLY)
@@ -28,6 +28,10 @@ func writeDaten() {
 	fmt.Print("Please, scan a barcode: ")
 	scanner.Scan()
 	barcode := scanner.Text()
+
+	if barcode == "end" {
+		return false
+	}
 
 	fmt.Print("Please, write a name (max. 150 character): ")
 	scanner.Scan()
@@ -58,13 +62,14 @@ func writeDaten() {
 		log.Fatal(err)
 	}
 
+	return true
 }
 
 func charLimiter(s string, limit int) string {
 	//create a new reader, that is gonna read through s string
 	reader := strings.NewReader(s)
 	//create a buffer, who's size gonna be limited
-	buff := make([]byte, len(s))
+	buff := make([]byte, limit)
 	//using ReadAtLeast we gonna read (s) into buff until it has read at least minimum byte (limit)
 	//it will read also futher, but buff is limited by (limit) and it will not take more characters than that
 	n, _ := io.ReadAtLeast(reader, buff, limit)
