@@ -1,5 +1,48 @@
 package main
 
+import (
+	"bufio"
+	"fmt"
+	"github.com/conamu/cliutilsmodule/menustyling"
+	"log"
+	"os"
+)
+
+func check(err error) {
+	if err != nil {
+		log.Fatal(err)
+		os.Exit(1)
+	}
+}
+
 func main() {
-	writeDaten()
+
+	initMenus()
+	scanner := bufio.NewScanner(os.Stdin)
+	mainMenu := menustyling.GetStoredMenu("main")
+
+	for true {
+		mainMenu.DisplayMenu()
+		switch mainMenu.GetInputData() {
+		case "1": // Get Data of one Entry
+			fmt.Println("Please enter or scan a code.")
+			scanner.Scan()
+			csvRead(scanner.Text(), mainMenu.GetInputData())
+		case "2": // Edit one Entry based on Barcode
+		case "3": // Delete one Entry based on Barcode
+		case "4": // Add one Entry
+      writeDaten()
+		case "5": // Get data from endless codes, terminate with strg+c or "end" code
+			for true{
+				scanner.Scan()
+				csvRead(scanner.Text(), mainMenu.GetInputData())
+			}
+		case "6": // Add endless entries, terminate with strg+c or "end" code
+		case "q": // Quit programm
+			log.Println("pressed exit, programm Exiting.\nBye!")
+			os.Exit(0)
+		default:
+			continue
+		}
+	}
 }

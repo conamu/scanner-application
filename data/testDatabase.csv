@@ -1,7 +1,9 @@
-barcode,name,category,description 
+barcode,name,category,description
+
 5901234123457,Coca-Cola,Drinks,"Coca-Cola, or Coke, is a carbonated soft drink manufactured by The Coca-Cola Company"
 5901234123635,T-Shirt,Clothes,Style of fabric shirt named after the T shape of its body and sleeves
 5901234123896,Christmas tree,Decoration,"A decorated tree, usually an evergreen conifer, such as a spruce, pine or fir, or an artificial tree of similar appearance, associated with the celebration of Christmas, originating in Northern Europe"
 5901234123957,Beer,Drinks,"One of the oldest and most widely consumed alcoholic drinks in the world, and the third most popular drink overall after water and tea"
 5901234123343,Pants,Clothes,"An item of clothing that might have originated in Central Asia, worn from the waist to the ankles, covering both legs separately"
 5901234123600,Candle,Decoration,"An ignitable wick embedded in wax, or another flammable solid substance such as tallow, that provides light, and in some cases, a fragrance"
+test-1234, Beer, Drink, Gets you really drunk
