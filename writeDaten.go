@@ -12,7 +12,7 @@ import (
 
 func writeDaten() {
 
-	var path = "testDatabase.csv"
+	var path = "data/testDatabase.csv"
 	//open a file with flags: to append (O_Append) and to write(O_WRONLY)
 	//FileMode (permission) - to append only
 	file, err := os.OpenFile(path, os.O_APPEND|os.O_WRONLY, os.ModeAppend)
@@ -64,7 +64,7 @@ func charLimiter(s string, limit int) string {
 	//create a new reader, that is gonna read through s string
 	reader := strings.NewReader(s)
 	//create a buffer, who's size gonna be limited
-	buff := make([]byte, limit)
+	buff := make([]byte, len(s))
 	//using ReadAtLeast we gonna read (s) into buff until it has read at least minimum byte (limit)
 	//it will read also futher, but buff is limited by (limit) and it will not take more characters than that
 	n, _ := io.ReadAtLeast(reader, buff, limit)

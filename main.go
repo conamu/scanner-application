@@ -31,7 +31,7 @@ func main() {
 		case "2": // Edit one Entry based on Barcode
 		case "3": // Delete one Entry based on Barcode
 		case "4": // Add one Entry
-      writeDaten()
+      		writeDaten()
 		case "5": // Get data from endless codes, terminate with strg+c or "end" code
 			for true{
 				scanner.Scan()
