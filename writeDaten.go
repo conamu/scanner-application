@@ -47,6 +47,7 @@ func writeDaten() bool {
 	scanner.Scan()
 	description := scanner.Text()
 	description = charLimiter(description, 500)
+	fmt.Println("====================================================")
 
 	//creating a slice "product", which holds input as it's elements
 	product := []string{barcode, name, category, description}
