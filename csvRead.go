@@ -8,7 +8,8 @@ import (
 	"time"
 )
 
-func csvRead(code string, option string) {
+func csvRead(code string, option string) []string {
+	var row []string
 	file, err := os.OpenFile("data/testDatabase.csv", os.O_RDWR|os.O_CREATE, 0755)
 	defer file.Close()
 	check(err)
@@ -25,15 +26,17 @@ func csvRead(code string, option string) {
 				" == ", record[2],
 				"\nDescription: ", record[3],
 				"\n========================================================")
+			row = record
 		} else if code == "end" {
 			log.Println("Scanned end/exit code, exiting!\nBye!")
 			os.Exit(0)
-		} else if index + 2 > len(records) && record[0] != code {
+		} else if index+2 > len(records) && record[0] != code {
 			fmt.Println("This code is not stored in the system.")
 		}
 	}
 
 	if option != "5" && option != "6" {
-		time.Sleep(time.Second*4)
+		time.Sleep(time.Second * 4)
 	}
+	return row
 }
