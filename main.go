@@ -3,9 +3,10 @@ package main
 import (
 	"bufio"
 	"fmt"
-	"github.com/conamu/cliutilsmodule/menustyling"
 	"log"
 	"os"
+
+	"github.com/conamu/cliutilsmodule/menustyling"
 )
 
 func check(err error) {
@@ -29,13 +30,16 @@ func main() {
 			scanner.Scan()
 			csvRead(scanner.Text(), mainMenu.GetInputData())
 		case "2": // Edit one Entry based on Barcode
+			writeDaten(chooseColumn())
 		case "3": // Delete one Entry based on Barcode
 			fmt.Println("WARNING! CODE SCANNED WILL BE PERMANENTLY ERASED FROM DATABASE!")
 			fmt.Println("Please enter or scan a code.")
 			scanner.Scan()
 			deleteData(scanner.Text())
 		case "4": // Add one Entry
-			writeDaten()
+
+			var empty []string
+			writeDaten(empty)
 		case "5": // Get data from endless codes, terminate with strg+c or "end" code
 			loop := true
 			for loop {

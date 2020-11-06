@@ -8,6 +8,10 @@ import (
 	"time"
 )
 
+
+func csvRead(code string, option string) []string {
+	var row []string
+
 func stringInSlice(a string, list []string) bool {
 	for _, b := range list {
 		if b == a {
@@ -18,6 +22,7 @@ func stringInSlice(a string, list []string) bool {
 }
 
 func csvRead(code string, option string) bool {
+
 	file, err := os.OpenFile("data/testDatabase.csv", os.O_RDWR|os.O_CREATE, 0755)
 	defer file.Close()
 	check(err)
@@ -35,6 +40,9 @@ func csvRead(code string, option string) bool {
 				" == ", record[1],
 				" == ", record[2],
 				"\nDescription: ", record[3],
+
+				"\n========================================================")
+			row = record
 				"\n====================================================")
 		} else if code == "end" {
 			log.Println("Scanned end code, exiting!")
@@ -49,7 +57,10 @@ func csvRead(code string, option string) bool {
 	}
 
 	if option != "5" && option != "6" {
-		time.Sleep(time.Second*4)
+		time.Sleep(time.Second * 4)
 	}
-	return true
+
+return true
 }
+
+
