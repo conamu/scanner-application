@@ -12,7 +12,7 @@ func chooseColumn() []string {
 	scanner := bufio.NewScanner(os.Stdin)
 	fmt.Println("Please enter or scan a code.")
 	scanner.Scan()
-	_ ,record := csvRead(scanner.Text(), "5")
+	_, record := csvRead(scanner.Text(), "5")
 
 	fmt.Printf(`Please, choose which column you want to change.
 	If you want to change Name press 1;
@@ -39,26 +39,10 @@ func chooseColumn() []string {
 		newDescr := scanner.Text()
 		record[3] = charLimiter(newDescr, 500)
 	default:
-		fmt.Println("Fail")
+		fmt.Println("Unvalid operation. Try again. Please enter or scan a code ")
+		chooseColumn()
 
 	}
-	/* 	file, err := os.OpenFile("data/testDatabase.csv", os.O_RDWR|os.O_CREATE, 0755)
-	   	defer file.Close()
-	   	check(err)
-	   	reader := csv.NewReader(file)
-	   	records, err := reader.ReadAll()
-	   	check(err)
-
-	   	fmt.Println(records)
-
-	   	writer := csv.NewWriter(file)
-	   	writer.Write(record)
-
-	   	if err := writer.Error(); err != nil {
-	   		log.Fatal(err)
-	   	}
-	   	fmt.Println("========================================")
-	   	fmt.Println(records) */
 	fmt.Println(record)
 	return record
 }
