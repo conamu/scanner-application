@@ -10,6 +10,7 @@ import (
 	"strings"
 )
 
+
 func writeDaten(data []string) {
 
 	var path = "data/testDatabase.csv"
@@ -57,9 +58,25 @@ func writeDaten(data []string) {
 		products = append(products, product)
 	} else {
 
+	if barcode == "end" {
+		return false
+	}
+
+	fmt.Print("Please, write a name (max. 150 character): ")
+	scanner.Scan()
+	name := scanner.Text()
+	name = charLimiter(name, 150)
+
+
 		for _, value := range records {
 
 			if value[0] == data[0] {
+
+	fmt.Print("Please, write a description (max. 500 character): ")
+	scanner.Scan()
+	description := scanner.Text()
+	description = charLimiter(description, 500)
+	fmt.Println("====================================================")
 
 				products = append(products, data)
 				writer := csv.NewWriter(file)
@@ -82,6 +99,7 @@ func writeDaten(data []string) {
 	}
 	writer.Flush()
 
+	return true
 }
 func charLimiter(s string, limit int) string {
 	//create a new reader, that is gonna read through s string
