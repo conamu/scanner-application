@@ -30,6 +30,10 @@ func main() {
 			csvRead(scanner.Text(), mainMenu.GetInputData())
 		case "2": // Edit one Entry based on Barcode
 		case "3": // Delete one Entry based on Barcode
+			fmt.Println("WARNING! CODE SCANNED WILL BE PERMANENTLY ERASED FROM DATABASE!")
+			fmt.Println("Please enter or scan a code.")
+			scanner.Scan()
+			deleteData(scanner.Text())
 		case "4": // Add one Entry
 			writeDaten()
 		case "5": // Get data from endless codes, terminate with strg+c or "end" code
