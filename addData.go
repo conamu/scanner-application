@@ -37,6 +37,9 @@ func writeDaten(data []string) bool {
 		fmt.Print("Please, scan a barcode: ")
 		scanner.Scan()
 		barcode = scanner.Text()
+		if barcode == "end" {
+			return false
+		}
 
 		fmt.Print("Please, write a name (max. 150 character): ")
 		scanner.Scan()
@@ -58,6 +61,9 @@ func writeDaten(data []string) bool {
 
 		//appending a slice "product" to two-dementtional slice "products"
 		products = append(products, product)
+
+
+
 	} else {
 
 		if barcode == "end" {

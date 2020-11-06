@@ -30,26 +30,26 @@ func main() {
 			scanner.Scan()
 			csvRead(scanner.Text(), mainMenu.GetInputData())
 		case "2": // Edit one Entry based on Barcode
-			writeDaten(chooseColumn())
+
+			deleteData("" ,chooseColumn())
+
 		case "3": // Delete one Entry based on Barcode
 			fmt.Println("WARNING! CODE SCANNED WILL BE PERMANENTLY ERASED FROM DATABASE!")
 			fmt.Println("Please enter or scan a code.")
 			scanner.Scan()
-			deleteData(scanner.Text())
+			deleteData(scanner.Text(), []string{})
 		case "4": // Add one Entry
-
-			var empty []string
-			writeDaten(empty)
+			writeDaten([]string{})
 		case "5": // Get data from endless codes, terminate with strg+c or "end" code
 			loop := true
 			for loop {
 				scanner.Scan()
-				loop = csvRead(scanner.Text(), mainMenu.GetInputData())
+				loop, _ = csvRead(scanner.Text(), mainMenu.GetInputData())
 			}
 		case "6": // Add endless entries, terminate with strg+c or "end" code
 			loop := true
 			for loop {
-				loop = writeDaten()
+				loop = writeDaten([]string{})
 			}
 		case "q": // Quit programm
 			log.Println("pressed exit, programm Exiting.\nBye!")

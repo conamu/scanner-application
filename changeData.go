@@ -12,7 +12,7 @@ func chooseColumn() []string {
 	scanner := bufio.NewScanner(os.Stdin)
 	fmt.Println("Please enter or scan a code.")
 	scanner.Scan()
-	record := csvRead(scanner.Text(), "5")
+	_ ,record := csvRead(scanner.Text(), "5")
 
 	fmt.Printf(`Please, choose which column you want to change.
 	If you want to change Name press 1;

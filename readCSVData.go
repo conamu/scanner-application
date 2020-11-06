@@ -18,9 +18,8 @@ func stringInSlice(a string, list []string) bool {
 	return false
 }
 
-func csvRead(code string, option string) bool {
-	// var row []string
-
+func csvRead(code string, option string) (bool, []string) {
+	var row []string
 	file, err := os.OpenFile("data/testDatabase.csv", os.O_RDWR|os.O_CREATE, 0755)
 	defer file.Close()
 	check(err)
@@ -40,11 +39,10 @@ func csvRead(code string, option string) bool {
 				"\nDescription: ", record[3],
 
 				"\n====================================================")
-			// row = record
-			// return row
+			row = record
 		} else if code == "end" {
 			log.Println("Scanned end code, exiting!")
-			return false
+			return false, row
 		} else if !stringInSlice(code, record) {
 			notCount++
 		}
@@ -58,7 +56,7 @@ func csvRead(code string, option string) bool {
 		time.Sleep(time.Second * 4)
 	}
 
-return true
+return true, row
 }
 
 
