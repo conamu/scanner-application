@@ -12,7 +12,6 @@ import (
 
 func writeDaten(data []string) {
 
-	fmt.Println(data)
 	var path = "data/testDatabase.csv"
 	//open a file with flags: to append (O_Append) and to write(O_WRONLY)
 	//FileMode (permission) - to append only
@@ -56,36 +55,34 @@ func writeDaten(data []string) {
 
 		//appending a slice "product" to two-dementtional slice "products"
 		products = append(products, product)
-		fmt.Println(products, "if we are here its good")
-		writer := csv.NewWriter(file)
-		writer.WriteAll(products)
-
-		if err := writer.Error(); err != nil {
-			log.Fatal(err)
-		}
-		writer.Flush()
 	} else {
 
-		fmt.Println(data, "else")
 		for _, value := range records {
-			fmt.Println(data, "for")
+
 			if value[0] == data[0] {
-				fmt.Println(data, "if")
-				deleteData(value[0])
+
+				products = append(products, data)
 				writer := csv.NewWriter(file)
-				writer.Write(data)
+				writer.WriteAll(products)
 				if err := writer.Error(); err != nil {
 					log.Fatal(err)
 				}
 				writer.Flush()
+
 			}
+
 		}
 
 	}
+	//creating a new writer, that will write into our csv file)
+	/* writer := csv.NewWriter(file)
+	writer.WriteAll(products)
+	if err := writer.Error(); err != nil {
+		log.Fatal(err)
+	}
+	writer.Flush() */
+
 }
-
-//creating a new writer, that will write into our csv file)
-
 func charLimiter(s string, limit int) string {
 	//create a new reader, that is gonna read through s string
 	reader := strings.NewReader(s)
