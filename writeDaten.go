@@ -75,12 +75,12 @@ func writeDaten(data []string) {
 
 	}
 	//creating a new writer, that will write into our csv file)
-	/* writer := csv.NewWriter(file)
+	writer := csv.NewWriter(file)
 	writer.WriteAll(products)
 	if err := writer.Error(); err != nil {
 		log.Fatal(err)
 	}
-	writer.Flush() */
+	writer.Flush()
 
 }
 func charLimiter(s string, limit int) string {
