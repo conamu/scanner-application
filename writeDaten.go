@@ -11,7 +11,7 @@ import (
 )
 
 
-func writeDaten(data []string) {
+func writeDaten(data []string) bool {
 
 	var path = "data/testDatabase.csv"
 	//open a file with flags: to append (O_Append) and to write(O_WRONLY)
@@ -30,11 +30,13 @@ func writeDaten(data []string) {
 	var products [][]string
 	scanner := bufio.NewScanner(os.Stdin)
 
+	barcode := ""
+
 	if len(data) == 0 {
 
 		fmt.Print("Please, scan a barcode: ")
 		scanner.Scan()
-		barcode := scanner.Text()
+		barcode = scanner.Text()
 
 		fmt.Print("Please, write a name (max. 150 character): ")
 		scanner.Scan()
@@ -58,9 +60,9 @@ func writeDaten(data []string) {
 		products = append(products, product)
 	} else {
 
-	if barcode == "end" {
-		return false
-	}
+		if barcode == "end" {
+			return false
+		}
 
 	fmt.Print("Please, write a name (max. 150 character): ")
 	scanner.Scan()

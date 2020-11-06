@@ -9,9 +9,6 @@ import (
 )
 
 
-func csvRead(code string, option string) []string {
-	var row []string
-
 func stringInSlice(a string, list []string) bool {
 	for _, b := range list {
 		if b == a {
@@ -22,6 +19,7 @@ func stringInSlice(a string, list []string) bool {
 }
 
 func csvRead(code string, option string) bool {
+	// var row []string
 
 	file, err := os.OpenFile("data/testDatabase.csv", os.O_RDWR|os.O_CREATE, 0755)
 	defer file.Close()
@@ -41,9 +39,9 @@ func csvRead(code string, option string) bool {
 				" == ", record[2],
 				"\nDescription: ", record[3],
 
-				"\n========================================================")
-			row = record
 				"\n====================================================")
+			// row = record
+			// return row
 		} else if code == "end" {
 			log.Println("Scanned end code, exiting!")
 			return false
