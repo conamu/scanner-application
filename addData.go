@@ -4,14 +4,41 @@ import (
 	"bufio"
 	"encoding/csv"
 	"fmt"
+	"github.com/dgraph-io/badger/v2"
 	"io"
 	"log"
 	"os"
 	"strings"
 )
 
+var scanner = bufio.NewScanner(os.Stdin)
+
+func getParams() (barcode, name, category, description string) {
+
+	fmt.Print("Scan a Barcode: ")
+	scanner.Scan()
+	barcode = scanner.Text()
+
+	fmt.Print("Whats the Product Name? (max. 150 characters): ")
+	scanner.Scan()
+	name = scanner.Text()
+	name = charLimiter(name, 150)
+
+	fmt.Print("Whats the Product Category? (max. 20 characters): ")
+	scanner.Scan()
+	category = scanner.Text()
+	category = charLimiter(category, 20)
+
+	fmt.Print("Whats the Product Description? (max. 500 characters): ")
+	scanner.Scan()
+	description = scanner.Text()
+	description = charLimiter(description, 500)
+
+	return barcode, name, category, description
+}
 
 func writeDaten(data []string) bool {
+
 
 	var path = "data/testDatabase.csv"
 	//open a file with flags: to append (O_Append) and to write(O_WRONLY)
@@ -28,38 +55,21 @@ func writeDaten(data []string) bool {
 
 	//creating a two-demensional slice, where we gonna save input-sclices
 	var products [][]string
-	scanner := bufio.NewScanner(os.Stdin)
 
 	barcode := ""
 
 	if len(data) == 0 {
 
-		fmt.Print("Please, scan a barcode: ")
-		scanner.Scan()
-		barcode = scanner.Text()
+		barcode, name, category, description := getParams()
+
 		if barcode == "end" {
 			return false
 		}
 
-		fmt.Print("Please, write a name (max. 150 character): ")
-		scanner.Scan()
-		name := scanner.Text()
-		name = charLimiter(name, 150)
-
-		fmt.Print("Please, write a category (max. 20 character): ")
-		scanner.Scan()
-		category := scanner.Text()
-		category = charLimiter(category, 20)
-
-		fmt.Print("Please, write a description (max. 500 character): ")
-		scanner.Scan()
-		description := scanner.Text()
-		description = charLimiter(description, 500)
-
 		//creating a slice "product", which holds input as it's elements
 		product := []string{barcode, name, category, description}
 
-		//appending a slice "product" to two-dementtional slice "products"
+		//appending a slice "product" to two-dimensional slice "products"
 		products = append(products, product)
 
 
@@ -70,7 +80,7 @@ func writeDaten(data []string) bool {
 			return false
 		}
 
-	fmt.Print("Please, write a name (max. 150 character): ")
+	fmt.Print("Whats the Product name? (max. 150 characters): ")
 	scanner.Scan()
 	name := scanner.Text()
 	name = charLimiter(name, 150)
@@ -80,7 +90,7 @@ func writeDaten(data []string) bool {
 
 			if value[0] == data[0] {
 
-	fmt.Print("Please, write a description (max. 500 character): ")
+	fmt.Print("Whats the Product description? (max. 500 characters): ")
 	scanner.Scan()
 	description := scanner.Text()
 	description = charLimiter(description, 500)
@@ -109,6 +119,29 @@ func writeDaten(data []string) bool {
 
 	return true
 }
+
+func writeKvData() {
+
+	barcode, name, category, description := getParams()
+
+	
+
+	// Initialize a Read-Write Transaction
+	err := db.Update(func(txn *badger.Txn) error {
+		// Create the Transaction, make it writable.
+		txn = db.NewTransaction(true)
+		defer txn.Discard()
+
+		// Use the Transaction
+		err :=  txn.Set([]byte("test"), []byte("This is a test Value"))
+		err = txn.Commit()
+		check(err)
+
+		return err
+	})
+	check(err)
+}
+
 func charLimiter(s string, limit int) string {
 	//create a new reader, that is gonna read through s string
 	reader := strings.NewReader(s)
