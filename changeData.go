@@ -14,35 +14,38 @@ func chooseColumn() []string {
 	scanner.Scan()
 	_, record := csvRead(scanner.Text(), "5")
 
-	fmt.Printf(`Please, choose which column you want to change.
-	If you want to change Name press 1;
-	If you want to change Category, press 2;
-	If you want to change Description, press 3.
+	fmt.Printf(`Please choose which column you want to change.
+	If you want to change the Name, press 1;
+	If you want to change the Category, press 2;
+	If you want to change the Description, press 3.
 	I want to change: `)
 	scanner.Scan()
 	option, _ := strconv.Atoi(scanner.Text())
 
 	switch option {
 	case 1:
-		fmt.Println("Please, write new Name: ")
+		fmt.Println("Enter a New Product Name: ")
 		scanner.Scan()
 		newName := scanner.Text()
 		record[1] = charLimiter(newName, 150)
 	case 2:
-		fmt.Println("Please, write new Category: ")
+		fmt.Println("Enter a new Category:  ")
 		scanner.Scan()
 		newCategory := scanner.Text()
 		record[2] = charLimiter(newCategory, 20)
 	case 3:
-		fmt.Println("Please, write new Description: ")
+		fmt.Println("Enter a new Description: ")
 		scanner.Scan()
 		newDescr := scanner.Text()
 		record[3] = charLimiter(newDescr, 500)
 	default:
-		fmt.Println("Unvalid operation. Try again. Please enter or scan a code ")
+		fmt.Println("Invalid operation.")
 		chooseColumn()
-
 	}
-	fmt.Println(record)
+
 	return record
+}
+
+func editKVEntry() {
+	
 }
