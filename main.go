@@ -3,6 +3,8 @@ package main
 import (
 	"bufio"
 	"fmt"
+	"github.com/dgraph-io/badger/v2"
+	"github.com/spf13/viper"
 	"log"
 	"os"
 
@@ -16,7 +18,15 @@ func check(err error) {
 	}
 }
 
+var db *badger.DB = nil
+
 func main() {
+
+	initConfig()
+	if viper.GetBool("useKeyValueDB") {
+		db, err := badger.Open(badger.DefaultOptions(viper.GetString("dbPath")))
+		check(err)
+	}
 
 	initMenus()
 	scanner := bufio.NewScanner(os.Stdin)
