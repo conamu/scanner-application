@@ -3,10 +3,11 @@ package main
 import (
 	"bufio"
 	"fmt"
-	"github.com/dgraph-io/badger/v2"
-	"github.com/spf13/viper"
 	"log"
 	"os"
+
+	"github.com/dgraph-io/badger/v2"
+	"github.com/spf13/viper"
 
 	"github.com/conamu/cliutilsmodule/menustyling"
 )
@@ -27,6 +28,7 @@ func main() {
 		db, err := badger.Open(badger.DefaultOptions(viper.GetString("dbPath")))
 		check(err)
 	}
+	defer db.Close()
 
 	initMenus()
 	scanner := bufio.NewScanner(os.Stdin)
@@ -38,28 +40,50 @@ func main() {
 		case "1": // Get Data of one Entry
 			fmt.Println("Please enter or scan a code.")
 			scanner.Scan()
-			csvRead(scanner.Text(), mainMenu.GetInputData())
+			if viper.GetBool("useKeyValueDB") {
+				// function for KeyValue DB
+			} else if viper.GetBool("useFlatDB") {
+				csvRead(scanner.Text(), mainMenu.GetInputData())
+			}
 		case "2": // Edit one Entry based on Barcode
-
-			deleteData("" ,chooseColumn())
-
+			if viper.GetBool("useKeyValueDB") {
+				// function for KeyValue DB
+			} else if viper.GetBool("useFlatDB") {
+				deleteData("", chooseColumn())
+			}
 		case "3": // Delete one Entry based on Barcode
 			fmt.Println("WARNING! CODE SCANNED WILL BE PERMANENTLY ERASED FROM DATABASE!")
 			fmt.Println("Please enter or scan a code.")
 			scanner.Scan()
-			deleteData(scanner.Text(), []string{})
+			if viper.GetBool("useKeyValueDB") {
+				// function for KeyValue DB
+			} else if viper.GetBool("useFlatDB") {
+				deleteData(scanner.Text(), []string{})
+			}
 		case "4": // Add one Entry
-			writeDaten([]string{})
+			if viper.GetBool("useKeyValueDB") {
+				// function for KeyValue DB
+			} else if viper.GetBool("useFlatDB") {
+				writeDaten([]string{})
+			}
 		case "5": // Get data from endless codes, terminate with strg+c or "end" code
-			loop := true
-			for loop {
-				scanner.Scan()
-				loop, _ = csvRead(scanner.Text(), mainMenu.GetInputData())
+			if viper.GetBool("useKeyValueDB") {
+				// function for KeyValue DB
+			} else if viper.GetBool("useFlatDB") {
+				loop := true
+				for loop {
+					scanner.Scan()
+					loop, _ = csvRead(scanner.Text(), mainMenu.GetInputData())
+				}
 			}
 		case "6": // Add endless entries, terminate with strg+c or "end" code
-			loop := true
-			for loop {
-				loop = writeDaten([]string{})
+			if viper.GetBool("useKeyValueDB") {
+				// function for KeyValue DB
+			} else if viper.GetBool("useFlatDB") {
+				loop := true
+				for loop {
+					loop = writeDaten([]string{})
+				}
 			}
 		case "q": // Quit programm
 			log.Println("pressed exit, programm Exiting.\nBye!")
