@@ -9,15 +9,20 @@ import (
 	"log"
 	"os"
 	"strings"
+	"time"
 )
 
 var scanner = bufio.NewScanner(os.Stdin)
 
-func getParams() (barcode, name, category, description string) {
-
+func getBarcode() string {
 	fmt.Print("Scan a Barcode: ")
 	scanner.Scan()
-	barcode = scanner.Text()
+	barcode := scanner.Text()
+
+	return barcode
+}
+
+func getParams() (name, category, description string) {
 
 	fmt.Print("Whats the Product Name? (max. 150 characters): ")
 	scanner.Scan()
@@ -34,7 +39,7 @@ func getParams() (barcode, name, category, description string) {
 	description = scanner.Text()
 	description = charLimiter(description, 500)
 
-	return barcode, name, category, description
+	return name, category, description
 }
 
 func writeDaten(data []string) bool {
@@ -60,7 +65,18 @@ func writeDaten(data []string) bool {
 
 	if len(data) == 0 {
 
-		barcode, name, category, description := getParams()
+		barcode := getBarcode()
+
+		for _, record := range records {
+			if record[0] == barcode {
+				log.Println("The Barcode", barcode, " is already added in the System.")
+			}
+		}
+
+		name, category, description := getParams()
+
+
+
 		if barcode == "end" {
 			return false
 		}
@@ -116,42 +132,71 @@ func writeDaten(data []string) bool {
 	return true
 }
 
-func writeKvData() {
+func writeKvData(option int) bool {
 
-	// barcode, name, category, description := getParams()
+	barcode := getBarcode()
 
+	if barcode == "end" {
+		return false
+	}
 
+	err := db.View(func(txn *badger.Txn) error {
 
-	// Initialize a Read-Write Transaction
-	err := db.Update(func(txn *badger.Txn) error {
-		// Create the Transaction, make it writable.
-		txn = db.NewTransaction(true)
-		defer txn.Discard()
+		txn = db.NewTransaction(false)
+		_, err := txn.Get([]byte(barcode + "Name"))
+		if err == badger.ErrKeyNotFound {
+			name, category, description := getParams()
+			// Initialize a Read-Write Transaction
+			err = db.Update(func(txn *badger.Txn) error {
 
-		// Use the Transaction
-		err := txn.Set([]byte("test"), []byte("This is a test Value"))
-		check(err)
-		err = txn.Set([]byte("test"), []byte("This is another test value."))
-		check(err)
-		err = txn.Commit()
-		check(err)
+				// Create the Transaction, make it writable.
+				txn = db.NewTransaction(true)
+				defer txn.Discard()
+
+				// Use the Transaction
+				err := txn.Set([]byte(barcode + "Name"), []byte(name))
+				check(err)
+				err = txn.Set([]byte(barcode + "Category"), []byte(category))
+				check(err)
+				err = txn.Set([]byte(barcode + "Description"), []byte(description))
+				check(err)
+				err = txn.Commit()
+				check(err)
+
+				return err
+			})
+			check(err)
+		} else {
+			fmt.Println("The Barcode ", barcode, "already exists in this Database.")
+			if option != 0 {
+				time.Sleep(time.Second*3)
+			}
+		}
 
 		return err
 	})
 	check(err)
 
+
+/* Testing
 	db.View(func(txn *badger.Txn) error {
 
 		txn = db.NewTransaction(false)
-		item, _ := txn.Get([]byte("test"))
+		namer, _ := txn.Get([]byte(barcode + "Name"))
+		categoryr, _ := txn.Get([]byte(barcode  + "Category"))
+		descriptionr, _ := txn.Get([]byte(barcode + "Description"))
 
-		value, _ := item.ValueCopy(nil)
-		fmt.Println(string(value))
+		val1, _ := namer.ValueCopy(nil)
+		val2, _ := categoryr.ValueCopy(nil)
+		val3, _ := descriptionr.ValueCopy(nil)
 
+		fmt.Println(string(val1), string(val2), string(val3))
 		return nil
 	})
 
+ */
 
+	return true
 }
 
 func charLimiter(s string, limit int) string {
