@@ -19,17 +19,21 @@ func check(err error) {
 	}
 }
 
-var db *badger.DB = nil
-
-func main() {
-
+func initDB() *badger.DB {
 	initConfig()
+	var rdb *badger.DB = nil
 	if viper.GetBool("useKeyValueDB") {
 		db, err := badger.Open(badger.DefaultOptions(viper.GetString("dbPath")))
 		check(err)
+		rdb = db
 	}
-	defer db.Close()
+	return rdb
+}
 
+var db *badger.DB = initDB()
+
+func main() {
+	defer db.Close()
 	initMenus()
 	scanner := bufio.NewScanner(os.Stdin)
 	mainMenu := menustyling.GetStoredMenu("main")
