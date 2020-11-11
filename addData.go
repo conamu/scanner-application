@@ -132,6 +132,7 @@ func writeDaten(data []string) bool {
 	return true
 }
 
+// Function to Add Data Entries to
 func writeKvData(option int) bool {
 
 	barcode := getBarcode()
@@ -178,8 +179,9 @@ func writeKvData(option int) bool {
 	check(err)
 
 
-/* Testing
-	db.View(func(txn *badger.Txn) error {
+/*  Testing
+
+		db.View(func(txn *badger.Txn) error {
 
 		txn = db.NewTransaction(false)
 		namer, _ := txn.Get([]byte(barcode + "Name"))
@@ -204,6 +206,9 @@ func charLimiter(s string, limit int) string {
 	reader := strings.NewReader(s)
 	//create a buffer (slice of bytes), who's size gonna be limited
 	buff := make([]byte, limit)
+	for i := len(s); i < len(buff); i++ {
+		buff[i] = 32
+	}
 	//using ReadAtLeast we gonna read (s) into buff until it has read at least minimum byte (limit)
 	//it will read also futher, but buff is limited by (limit) and it will not take more characters than that
 	n, _ := io.ReadAtLeast(reader, buff, limit)

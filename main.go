@@ -51,7 +51,7 @@ func main() {
 			}
 		case "2": // Edit one Entry based on Barcode
 			if viper.GetBool("useKeyValueDB") {
-				//TODO: KV DB Edit Function
+				editKVEntry()
 			} else if viper.GetBool("useFlatDB") {
 				deleteData("", chooseColumn())
 			}

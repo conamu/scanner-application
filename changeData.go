@@ -3,6 +3,7 @@ package main
 import (
 	"bufio"
 	"fmt"
+	"github.com/dgraph-io/badger/v2"
 	"os"
 	"strconv"
 )
@@ -47,5 +48,29 @@ func chooseColumn() []string {
 }
 
 func editKVEntry() {
-	
+	err := db.Update(func(txn *badger.Txn) error {
+		txn = db.NewTransaction(true)
+		barcode := getBarcode()
+
+		nameVal, err := txn.Get([]byte(barcode + "Name"))
+		if err == badger.ErrKeyNotFound {
+			fmt.Println("This Barcode does not Exist yet.\nPlease use the Add functionality to add it.")
+			return nil
+		}
+		categoryVal, err := txn.Get([]byte(barcode + "Category"))
+		descriptionVal, err := txn.Get([]byte(barcode + "Description"))
+		check(err)
+
+		nameOld, err := nameVal.ValueCopy(nil)
+		categoryOld, err := categoryVal.ValueCopy(nil)
+		descriptionOld, err := descriptionVal.ValueCopy(nil)
+		check(err)
+
+		itemDisplay(string(nameOld), string(categoryOld), string(descriptionOld))
+
+
+
+		return err
+	})
+	check(err)
 }
