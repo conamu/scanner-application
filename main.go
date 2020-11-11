@@ -35,6 +35,7 @@ var db *badger.DB = initDB()
 func main() {
 	defer db.Close()
 	initMenus()
+
 	scanner := bufio.NewScanner(os.Stdin)
 	mainMenu := menustyling.GetStoredMenu("main")
 
@@ -45,7 +46,7 @@ func main() {
 			fmt.Println("Please enter or scan a code.")
 			scanner.Scan()
 			if viper.GetBool("useKeyValueDB") {
-				// function for KeyValue DB
+				readBadger(scanner.Text())
 			} else if viper.GetBool("useFlatDB") {
 				csvRead(scanner.Text(), mainMenu.GetInputData())
 			}
