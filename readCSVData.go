@@ -6,8 +6,9 @@ import (
 	"log"
 	"os"
 	"time"
-)
 
+	"github.com/dgraph-io/badger/v2"
+)
 
 func stringInSlice(a string, list []string) bool {
 	for _, b := range list {
@@ -56,7 +57,44 @@ func csvRead(code string, option string) (bool, []string) {
 		time.Sleep(time.Second * 4)
 	}
 
-return true, row
+	return true, row
 }
 
+func readBadger(code string) {
 
+	err := db.View(func(txn *badger.Txn) error {
+		item, err := txn.Get([]byte(code))
+		if err == badger.ErrKeyNotFound {
+			fmt.Println("This entry haven't store yet. You will be redirected to the main menu")
+			time.Sleep(time.Second * 4)
+			main()
+		} else if err != nil {
+			log.Fatal(err)
+		}
+		err = item.Value(func(val []byte) error {
+			fmt.Printf("The answer is: %s\n", val)
+			time.Sleep(time.Second * 4)
+			return nil
+		})
+		return nil
+	})
+
+	check(err)
+
+}
+
+//I NEEDED THIS FUNCTION TO CHECK, IF MY READ FUNCTION WORKS
+//LET IT HERE JUST IN CASE
+/* func addTest() error {
+
+	fmt.Println("\nRunning SET")
+	return db.Update(
+		func(txn *badger.Txn) error {
+			if err := txn.Set([]byte("lalala"), []byte("zhuzhuzhu")); err != nil {
+				return err
+			}
+			fmt.Println("Set lalala to zhuzhuzhu")
+			return nil
+		})
+}
+*/
