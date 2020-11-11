@@ -42,6 +42,5 @@ func deleteData(code string, newRecord []string) {
 			}
 		}
 	}
-
 	writer.Flush()
 }

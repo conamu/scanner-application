@@ -6,6 +6,7 @@ import (
 	"github.com/dgraph-io/badger/v2"
 	"os"
 	"strconv"
+	"time"
 )
 
 func chooseColumn() []string {
@@ -55,6 +56,7 @@ func editKVEntry() {
 		nameVal, err := txn.Get([]byte(barcode + "Name"))
 		if err == badger.ErrKeyNotFound {
 			fmt.Println("This Barcode does not Exist yet.\nPlease use the Add functionality to add it.")
+			time.Sleep(time.Second * 3)
 			return nil
 		}
 		categoryVal, err := txn.Get([]byte(barcode + "Category"))
@@ -67,8 +69,39 @@ func editKVEntry() {
 		check(err)
 
 		itemDisplay(string(nameOld), string(categoryOld), string(descriptionOld))
+		option := itemEditMenu()
+		m := true
+		for m {
+			switch option {
+			case "1":
+				fmt.Println("Please enter a new Item Name: ")
+				scanner.Scan()
+				name := scanner.Text()
+				err := txn.Set([]byte(barcode+"Name"), []byte(name))
+				check(err)
+				m = false
+			case "2":
+				fmt.Println("Please enter a new Item Category: ")
+				scanner.Scan()
+				category := scanner.Text()
+				err := txn.Set([]byte(barcode+"Category"), []byte(category))
+				check(err)
+				m = false
+			case "3":
+				fmt.Println("Please enter a new Item Description: ")
+				scanner.Scan()
+				description := scanner.Text()
+				err := txn.Set([]byte(barcode+"Description"), []byte(description))
+				check(err)
+				m = false
+			case "4":
+				return nil
+			default:
+				continue
+			}
+		}
 
-
+		txn.Commit()
 
 		return err
 	})
