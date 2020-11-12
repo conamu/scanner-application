@@ -63,7 +63,7 @@ func csvRead(code string, option string) (bool, []string) {
 func readBadger(code string) {
 
 	err := db.View(func(txn *badger.Txn) error {
-		item, err := txn.Get([]byte(code))
+		item, err := txn.Get([]byte(code + "Name"))
 		if err == badger.ErrKeyNotFound {
 			fmt.Println("This entry haven't store yet. You will be redirected to the main menu")
 			time.Sleep(time.Second * 4)
@@ -71,23 +71,41 @@ func readBadger(code string) {
 		} else if err != nil {
 			log.Fatal(err)
 		}
-		err = item.Value(func(val []byte) error {
-			fmt.Printf("The Item is: %s\n", val)
-			fmt.Println("====================================================\n",
-				string([]byte(code)),
-				" == ", string([]byte(code+"Name")),
-				" == ", string([]byte(code+"Category")),
-				"\nDescription: ", string([]byte(code+"Description")),
 
-				"\n====================================================")
+		err = item.Value(func(val []byte) error {
+
+			fmt.Printf("Barcode: %s\nName: %s\n", code, val)
+			return nil
+		})
+
+		item, err = txn.Get([]byte(code + "Category"))
+		if err != nil {
+			log.Fatal(err)
+		}
+		err = item.Value(func(val []byte) error {
+			fmt.Printf("Category: %s\n", val)
+			return nil
+		})
+
+		item, err = txn.Get([]byte(code + "Description"))
+		if err != nil {
+			log.Fatal(err)
+		}
+		err = item.Value(func(val []byte) error {
+			fmt.Printf("Description: %s\n", val)
 			time.Sleep(time.Second * 4)
 			return nil
 		})
+
+		if err != nil {
+			log.Fatal(err)
+		}
 		return nil
+
 	})
-
-	check(err)
-
+	if err != nil {
+		log.Fatal(err)
+	}
 }
 
 //I NEEDED THIS FUNCTION TO CHECK, IF MY READ FUNCTION WORKS
