@@ -48,23 +48,24 @@ func main() {
 			scanner.Scan()
 			if viper.GetBool("useKeyValueDB") {
 
-				barcode := scanner.Text()
-				//readBadger(barcode)
-				if checkItem(barcode) == true {
-					name := readName(barcode)
-					category := readCat(barcode)
-					description := readDes(barcode)
-					//in next 2 prints I am trying to make the ouptut looks like in flat-DB, but it doesn't really work
-					//i just leave it to check later
-					//fmt.Printf("====================================================\n%s == %s == %s\nDescription: %s\n", barcode, name, category, description)
-					/* 	fmt.Println("====================================================\n",
-					string(barcode),
-					" == ", string(name), "hey", " == ", string(category), "hey",
-					"\nDescription: ", string(description),
-					"\n====================================================") */
-					fmt.Printf("Barcode: %s\nName: %s\nCategory: %s\nDescription: %s\n", barcode, name, category, description)
-					time.Sleep(time.Second * 4)
-				}
+				//barcode := scanner.Text()
+
+				//if checkItem(barcode) {
+				/* name := readName(barcode)
+				category := readCategory(barcode)
+				description := readDescription(barcode) */
+				//in next 2 prints I am trying to make the ouptut looks like in flat-DB, but it doesn't really work
+				//i just leave it to check later
+				//WHY IT WORKS AS IT DOES
+				//fmt.Printf("====================================================\n%s == %s == %s\nDescription: %s\n", barcode, name, category, description)
+				/* 	fmt.Println("====================================================\n",
+				string(barcode),
+				" == ", string(name), "hey", " == ", string(category), "hey",
+				"\nDescription: ", string(description),
+				"\n====================================================") */
+
+				readKV(scanner.Text())
+				time.Sleep(time.Second * 4)
 
 			} else if viper.GetBool("useFlatDB") {
 				csvRead(scanner.Text(), mainMenu.GetInputData())
@@ -92,7 +93,16 @@ func main() {
 			}
 		case "5": // Get data from endless codes, terminate with strg+c or "end" code
 			if viper.GetBool("useKeyValueDB") {
-				// function for KeyValue DB
+				loop := true
+				for loop {
+
+					fmt.Println("Please enter or scan a code.")
+
+					scanner.Scan()
+					checkItem(scanner.Text())
+					loop = readKV(scanner.Text())
+				}
+
 			} else if viper.GetBool("useFlatDB") {
 				loop := true
 				for loop {
