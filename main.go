@@ -61,7 +61,7 @@ func main() {
 			fmt.Println("Please enter or scan a code.")
 			scanner.Scan()
 			if viper.GetBool("useKeyValueDB") {
-				// function for KeyValue DB
+				deleteBadger(scanner.Text())
 			} else if viper.GetBool("useFlatDB") {
 				deleteData(scanner.Text(), []string{})
 			}
