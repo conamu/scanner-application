@@ -2,8 +2,9 @@ package main
 
 import (
 	"encoding/csv"
-	"log"
+	"fmt"
 	"os"
+	"time"
 
 	"github.com/dgraph-io/badger/v2"
 )
@@ -60,16 +61,16 @@ return nil */
 func deleteBadger(code string) {
 	err := db.Update(func(txn *badger.Txn) error {
 		txn = db.NewTransaction(true)
-		defer txn.Discard()
-
-		err := txn.Delete([]byte(code))
-
+		_, err := txn.Get([]byte(code + "Name"))
 		check(err)
+		err = txn.Delete([]byte(code + "Name"))
+		check(err)
+		fmt.Println("Item is sucsessfuly deleted. You will be redirected to the main menu")
+		txn.Commit()
+		time.Sleep(time.Second * 4)
 		return nil
 
 	})
-	if err != nil {
-		log.Fatal(err)
-	}
+	check(err)
 
 }
