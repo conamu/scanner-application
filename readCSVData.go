@@ -72,7 +72,14 @@ func readBadger(code string) {
 			log.Fatal(err)
 		}
 		err = item.Value(func(val []byte) error {
-			fmt.Printf("The answer is: %s\n", val)
+			fmt.Printf("The Item is: %s\n", val)
+			fmt.Println("====================================================\n",
+				string([]byte(code)),
+				" == ", string([]byte(code+"Name")),
+				" == ", string([]byte(code+"Category")),
+				"\nDescription: ", string([]byte(code+"Description")),
+
+				"\n====================================================")
 			time.Sleep(time.Second * 4)
 			return nil
 		})
