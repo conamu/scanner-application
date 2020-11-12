@@ -48,12 +48,13 @@ func main() {
 			scanner.Scan()
 			if viper.GetBool("useKeyValueDB") {
 
-				//barcode := scanner.Text()
+				barcode := scanner.Text()
 
 				//if checkItem(barcode) {
 				/* name := readName(barcode)
 				category := readCategory(barcode)
 				description := readDescription(barcode) */
+
 				//in next 2 prints I am trying to make the ouptut looks like in flat-DB, but it doesn't really work
 				//i just leave it to check later
 				//WHY IT WORKS AS IT DOES
@@ -64,7 +65,7 @@ func main() {
 				"\nDescription: ", string(description),
 				"\n====================================================") */
 
-				readKV(scanner.Text())
+				readKV(barcode)
 				time.Sleep(time.Second * 4)
 
 			} else if viper.GetBool("useFlatDB") {
@@ -97,10 +98,13 @@ func main() {
 				for loop {
 
 					fmt.Println("Please enter or scan a code.")
-
 					scanner.Scan()
-					checkItem(scanner.Text())
-					loop = readKV(scanner.Text())
+					code := scanner.Text()
+					if code != "end" {
+						loop = readKV(code)
+					} else {
+						loop = false
+					}
 				}
 
 			} else if viper.GetBool("useFlatDB") {
