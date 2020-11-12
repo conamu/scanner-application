@@ -67,6 +67,7 @@ func writeDaten(data []string) bool {
 		for _, record := range records {
 			if record[0] == barcode {
 				log.Println("The Barcode", barcode, " is already added in the System.")
+				return true
 			}
 		}
 

@@ -92,7 +92,9 @@ func main() {
 			}
 		case "q": // Quit programm
 			log.Println("pressed exit, programm Exiting.\nBye!")
-			db.Close()
+			if viper.GetBool("useKeyValueDB") {
+				db.Close()
+			}
 			os.Exit(0)
 		default:
 			continue
