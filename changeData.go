@@ -1,20 +1,21 @@
 package main
 
 import (
-	"bufio"
+	"errors"
 	"fmt"
 	"github.com/dgraph-io/badger/v2"
-	"os"
 	"strconv"
 	"time"
 )
 
 func chooseColumn() []string {
 
-	scanner := bufio.NewScanner(os.Stdin)
 	fmt.Println("Please enter or scan a code.")
-	scanner.Scan()
-	_, record, err := csvRead(scanner.Text(), "5")
+	code, valid := getBarcode()
+	if !valid {
+		return nil
+	}
+	_, record, err := csvRead(code, "5", valid)
 	if err != nil {
 		return nil
 	}
@@ -50,7 +51,10 @@ func chooseColumn() []string {
 func editKVEntry() {
 	err := db.Update(func(txn *badger.Txn) error {
 		txn = db.NewTransaction(true)
-		barcode := getBarcode()
+		barcode, valid := getBarcode()
+		if !valid {
+			return errors.New("CODE NOT VALID")
+		}
 
 		nameVal, err := txn.Get([]byte(barcode + "Name"))
 		if err == badger.ErrKeyNotFound {

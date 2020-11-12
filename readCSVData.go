@@ -4,6 +4,7 @@ import (
 	"encoding/csv"
 	"errors"
 	"fmt"
+	"github.com/spf13/viper"
 	"log"
 	"os"
 	"time"
@@ -19,9 +20,13 @@ func stringInSlice(a string, list []string) bool {
 	return false
 }
 
-func csvRead(code string, option string) (bool, []string, error) {
+func csvRead(code string, option string, validity bool) (bool, []string, error) {
+
+	if !validity {
+		return false, nil, nil
+	}
 	var row []string
-	file, err := os.OpenFile("data/testDatabase.csv", os.O_RDWR|os.O_CREATE, 0755)
+	file, err := os.OpenFile(viper.GetString("flatPath"), os.O_RDWR|os.O_CREATE, 0755)
 	defer file.Close()
 	check(err)
 	reader := csv.NewReader(file)
@@ -52,7 +57,7 @@ func csvRead(code string, option string) (bool, []string, error) {
 		time.Sleep(time.Second * 4)
 	}
 
-return true, row, nil
+	return true, row, nil
 }
 
 

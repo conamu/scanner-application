@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/csv"
+	"github.com/spf13/viper"
 	"os"
 )
 
@@ -11,17 +12,17 @@ func deleteData(code string, newRecord []string) {
 		return
 	}
 
-	file, err := os.OpenFile("data/testDatabase.csv", os.O_RDWR, 0755)
+	file, err := os.OpenFile(viper.GetString("flatPath"), os.O_RDWR, 0755)
 	defer file.Close()
 	check(err)
 
 	reader := csv.NewReader(file)
 	records, err := reader.ReadAll()
 	check(err)
-	err = os.Remove("data/testDatabase.csv")
+	err = os.Remove(viper.GetString("flatPath"))
 	check(err)
 
-	nFile, err := os.OpenFile("data/testDatabase.csv", os.O_RDWR|os.O_CREATE, 0755)
+	nFile, err := os.OpenFile(viper.GetString("flatPath"), os.O_RDWR|os.O_CREATE, 0755)
 	defer nFile.Close()
 	check(err)
 	writer := csv.NewWriter(nFile)

@@ -42,11 +42,11 @@ func main() {
 		switch mainMenu.GetInputData() {
 		case "1": // Get Data of one Entry
 			fmt.Println("Please enter or scan a code.")
-			scanner.Scan()
+			code, valid := getBarcode()
 			if viper.GetBool("useKeyValueDB") {
 				// function for KeyValue DB
 			} else if viper.GetBool("useFlatDB") {
-				csvRead(scanner.Text(), mainMenu.GetInputData())
+				csvRead(code, mainMenu.GetInputData(), valid)
 			}
 		case "2": // Edit one Entry based on Barcode
 			if viper.GetBool("useKeyValueDB") {
@@ -75,8 +75,11 @@ func main() {
 			} else if viper.GetBool("useFlatDB") {
 				loop := true
 				for loop {
-					scanner.Scan()
-					loop, _, _ = csvRead(scanner.Text(), mainMenu.GetInputData())
+					code, valid := getBarcode()
+					loop, _, _ = csvRead(code, mainMenu.GetInputData(), valid)
+					if !valid {
+						loop = true
+					}
 				}
 			}
 		case "6": // Add endless entries, terminate with strg+c or "end" code
