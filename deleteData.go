@@ -49,15 +49,6 @@ func deleteData(code string, newRecord []string) {
 	writer.Flush()
 }
 
-/* err = db.Update(func(txn *badger.Txn) error {
-txn := db.NewTransaction(true) // Read-write txn
-defer txn.Discard()
-err := txn.Delete([]byte(code))
-
-check(err)
-}
-return nil */
-
 func deleteBadger(code string) {
 	err := db.Update(func(txn *badger.Txn) error {
 		txn = db.NewTransaction(true)
