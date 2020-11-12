@@ -52,7 +52,7 @@ func main() {
 			}
 		case "2": // Edit one Entry based on Barcode
 			if viper.GetBool("useKeyValueDB") {
-				// function for KeyValue DB
+				editKVEntry()
 			} else if viper.GetBool("useFlatDB") {
 				deleteData("", chooseColumn())
 			}
@@ -67,7 +67,7 @@ func main() {
 			}
 		case "4": // Add one Entry
 			if viper.GetBool("useKeyValueDB") {
-				// function for KeyValue DB
+				writeKvData(0)
 			} else if viper.GetBool("useFlatDB") {
 				writeDaten([]string{})
 			}
@@ -82,10 +82,12 @@ func main() {
 				}
 			}
 		case "6": // Add endless entries, terminate with strg+c or "end" code
+			loop := true
 			if viper.GetBool("useKeyValueDB") {
-				// function for KeyValue DB
+				for loop {
+					loop = writeKvData(1)
+				}
 			} else if viper.GetBool("useFlatDB") {
-				loop := true
 				for loop {
 					loop = writeDaten([]string{})
 				}

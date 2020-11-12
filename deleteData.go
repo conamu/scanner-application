@@ -45,9 +45,9 @@ func deleteData(code string, newRecord []string) {
 			}
 		}
 	}
-
 	writer.Flush()
 }
+<<<<<<< HEAD
 
 /* err = db.Update(func(txn *badger.Txn) error {
 txn := db.NewTransaction(true) // Read-write txn
@@ -74,3 +74,5 @@ func deleteBadger(code string) {
 	}
 
 }
+=======
+>>>>>>> origin/master
