@@ -60,52 +60,138 @@ func csvRead(code string, option string) (bool, []string) {
 	return true, row
 }
 
-func readBadger(code string) {
+func readKV(code string) bool {
+	checkItem(code)
+	if code != "end" {
+		name := readName(code)
+		category := readCategory(code)
+		description := readDescription(code)
+		itemDisplay(string(name), string(category), string(description))
 
+		return true
+	}
+	log.Println("Scanned end code, exiting!")
+	return false
+}
+
+//this function is checking, if the Item already stored in the DB
+
+/* func checkItem(code string, option int) bool {
 	err := db.View(func(txn *badger.Txn) error {
-		item, err := txn.Get([]byte(code + "Name"))
+		_, err := txn.Get([]byte(code + "Name"))
 		if err == badger.ErrKeyNotFound {
-			fmt.Println("This entry haven't store yet. You will be redirected to the main menu")
+				fmt.Println("This Item haven't store in Database. You will be redirected to the main menu")
+				main()
+			} else if err != nil {
+				log.Fatal(err)
+				return err
+			}
+			return nil
+
+		}
+		check(err)
+		return nil
+	})
+	if err != nil {
+		return false
+	}
+	return true
+} */
+
+/* func checkItem1(code string) bool {
+	var option bool
+	err := db.View(func(txn *badger.Txn) error {
+		_, err := txn.Get([]byte(code + "Name"))
+		if err == badger.ErrKeyNotFound {
+
+			option = false
+			return nil
+
+		} else if err != nil {
+			log.Fatal(err)
+			return err
+		}
+
+	})
+	if err != nil || option == false {
+		return false
+	}
+	return true
+} */
+
+func checkItem(code string) bool {
+	err := db.View(func(txn *badger.Txn) error {
+		_, err := txn.Get([]byte(code + "Name"))
+		if err == badger.ErrKeyNotFound {
+			fmt.Println("This Item haven't store in Database. You will be redirected to the main menu")
 			time.Sleep(time.Second * 4)
 			main()
+			return nil
 		} else if err != nil {
 			log.Fatal(err)
 		}
-
-		err = item.Value(func(val []byte) error {
-
-			fmt.Printf("Barcode: %s\nName: %s\n", code, val)
-			return nil
-		})
-
-		item, err = txn.Get([]byte(code + "Category"))
-		if err != nil {
-			log.Fatal(err)
-		}
-		err = item.Value(func(val []byte) error {
-			fmt.Printf("Category: %s\n", val)
-			return nil
-		})
-
-		item, err = txn.Get([]byte(code + "Description"))
-		if err != nil {
-			log.Fatal(err)
-		}
-		err = item.Value(func(val []byte) error {
-			fmt.Printf("Description: %s\n", val)
-			time.Sleep(time.Second * 4)
-			return nil
-		})
-
-		if err != nil {
-			log.Fatal(err)
-		}
 		return nil
-
 	})
 	if err != nil {
-		log.Fatal(err)
+		return false
 	}
+	return true
+}
+
+func readName(code string) []byte {
+	//creating a copy of item, so we can use it later outside of transaction
+	var nameCopy []byte
+	err := db.View(func(txn *badger.Txn) error {
+		item, err := txn.Get([]byte(code + "Name"))
+		check(err)
+
+		err = item.Value(func(val []byte) error {
+			//storing the value of item to the copy
+			nameCopy = append([]byte{}, val...)
+			return nil
+		})
+		check(err)
+		return nil
+	})
+	check(err)
+	return nameCopy
+}
+
+func readCategory(code string) []byte {
+	//creating a copy of item, so we can use it later outside of transaction
+	var catCopy []byte
+	err := db.View(func(txn *badger.Txn) error {
+		item, err := txn.Get([]byte(code + "Category"))
+		check(err)
+
+		err = item.Value(func(val []byte) error {
+			//storing the value of item to the copy
+			catCopy = append([]byte{}, val...)
+			return nil
+		})
+		check(err)
+		return nil
+	})
+	check(err)
+	return catCopy
+}
+
+func readDescription(code string) []byte {
+	//creating a copy of item, so we can use it later outside of transaction
+	var desCopy []byte
+	err := db.View(func(txn *badger.Txn) error {
+		item, err := txn.Get([]byte(code + "Description"))
+		check(err)
+		err = item.Value(func(val []byte) error {
+			//storing the value of item to the copy
+			desCopy = append([]byte{}, val...)
+			return nil
+		})
+		check(err)
+		return nil
+	})
+	check(err)
+	return desCopy
 }
 
 //I NEEDED THIS FUNCTION TO CHECK, IF MY READ FUNCTION WORKS
