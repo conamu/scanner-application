@@ -75,55 +75,11 @@ func readKV(code string) bool {
 }
 
 //this function is checking, if the Item already stored in the DB
-
-/* func checkItem(code string, option int) bool {
-	err := db.View(func(txn *badger.Txn) error {
-		_, err := txn.Get([]byte(code + "Name"))
-		if err == badger.ErrKeyNotFound {
-				fmt.Println("This Item haven't store in Database. You will be redirected to the main menu")
-				main()
-			} else if err != nil {
-				log.Fatal(err)
-				return err
-			}
-			return nil
-
-		}
-		check(err)
-		return nil
-	})
-	if err != nil {
-		return false
-	}
-	return true
-} */
-
-/* func checkItem1(code string) bool {
-	var option bool
-	err := db.View(func(txn *badger.Txn) error {
-		_, err := txn.Get([]byte(code + "Name"))
-		if err == badger.ErrKeyNotFound {
-
-			option = false
-			return nil
-
-		} else if err != nil {
-			log.Fatal(err)
-			return err
-		}
-
-	})
-	if err != nil || option == false {
-		return false
-	}
-	return true
-} */
-
 func checkItem(code string) bool {
 	err := db.View(func(txn *badger.Txn) error {
 		_, err := txn.Get([]byte(code + "Name"))
 		if err == badger.ErrKeyNotFound {
-			fmt.Println("This Item haven't store in Database. You will be redirected to the main menu")
+			fmt.Println("This Item hasn't store in Database. You will be redirected to the main menu")
 			time.Sleep(time.Second * 4)
 			main()
 			return nil
