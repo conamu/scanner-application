@@ -1,7 +1,6 @@
 package main
 
 import (
-	"bufio"
 	"encoding/csv"
 	"fmt"
 	"github.com/dgraph-io/badger/v2"
@@ -11,8 +10,6 @@ import (
 	"strings"
 	"time"
 )
-
-var scanner = bufio.NewScanner(os.Stdin)
 
 func getBarcode() string {
 	fmt.Print("Scan a Barcode: ")
@@ -178,26 +175,6 @@ func writeKvData(option int) bool {
 	})
 	check(err)
 
-
-/*  Testing
-
-		db.View(func(txn *badger.Txn) error {
-
-		txn = db.NewTransaction(false)
-		namer, _ := txn.Get([]byte(barcode + "Name"))
-		categoryr, _ := txn.Get([]byte(barcode  + "Category"))
-		descriptionr, _ := txn.Get([]byte(barcode + "Description"))
-
-		val1, _ := namer.ValueCopy(nil)
-		val2, _ := categoryr.ValueCopy(nil)
-		val3, _ := descriptionr.ValueCopy(nil)
-
-		fmt.Println(string(val1), string(val2), string(val3))
-		return nil
-	})
-
- */
-
 	return true
 }
 
@@ -206,6 +183,7 @@ func charLimiter(s string, limit int) string {
 	reader := strings.NewReader(s)
 	//create a buffer (slice of bytes), who's size gonna be limited
 	buff := make([]byte, limit)
+	// Fill the buff slice initially with spaces so we can TrimSpace the Strings to display them easier.
 	for i := len(s); i < len(buff); i++ {
 		buff[i] = 32
 	}

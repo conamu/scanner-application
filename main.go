@@ -31,11 +31,10 @@ func initDB() *badger.DB {
 }
 
 var db *badger.DB = initDB()
+var scanner = bufio.NewScanner(os.Stdin)
 
 func main() {
-	defer db.Close()
 	initMenus()
-	scanner := bufio.NewScanner(os.Stdin)
 	mainMenu := menustyling.GetStoredMenu("main")
 
 	for true {
@@ -77,7 +76,7 @@ func main() {
 				loop := true
 				for loop {
 					scanner.Scan()
-					loop, _ = csvRead(scanner.Text(), mainMenu.GetInputData())
+					loop, _, _ = csvRead(scanner.Text(), mainMenu.GetInputData())
 				}
 			}
 		case "6": // Add endless entries, terminate with strg+c or "end" code
@@ -93,6 +92,7 @@ func main() {
 			}
 		case "q": // Quit programm
 			log.Println("pressed exit, programm Exiting.\nBye!")
+			db.Close()
 			os.Exit(0)
 		default:
 			continue

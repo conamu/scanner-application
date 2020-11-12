@@ -6,6 +6,11 @@ import (
 )
 
 func deleteData(code string, newRecord []string) {
+
+	if code == "" && newRecord == nil {
+		return
+	}
+
 	file, err := os.OpenFile("data/testDatabase.csv", os.O_RDWR, 0755)
 	defer file.Close()
 	check(err)

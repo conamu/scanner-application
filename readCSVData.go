@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/csv"
+	"errors"
 	"fmt"
 	"log"
 	"os"
@@ -18,7 +19,7 @@ func stringInSlice(a string, list []string) bool {
 	return false
 }
 
-func csvRead(code string, option string) (bool, []string) {
+func csvRead(code string, option string) (bool, []string, error) {
 	var row []string
 	file, err := os.OpenFile("data/testDatabase.csv", os.O_RDWR|os.O_CREATE, 0755)
 	defer file.Close()
@@ -28,21 +29,14 @@ func csvRead(code string, option string) (bool, []string) {
 	check(err)
 	notCount := 1
 
-	// If the code matches an entry in the Databease, show the data. Else return an error.
-	for index, record := range records {
+	// If the code matches an entry in the Database, show the data. Else return an error.
+	for _, record := range records {
 		if stringInSlice(code, record) {
-			fmt.Println("====================================================\n",
-				"Nr.: ", index,
-				" == ", record[0],
-				" == ", record[1],
-				" == ", record[2],
-				"\nDescription: ", record[3],
-
-				"\n====================================================")
+			itemDisplay(record[1], record[2], record[3])
 			row = record
 		} else if code == "end" {
 			log.Println("Scanned end code, exiting!")
-			return false, row
+			return false, row, nil
 		} else if !stringInSlice(code, record) {
 			notCount++
 		}
@@ -50,13 +44,15 @@ func csvRead(code string, option string) (bool, []string) {
 
 	if notCount > len(records) {
 		fmt.Println("This code is not stored in the system.")
+
+		return true, nil, errors.New("CODE NOT FOUND")
 	}
 
 	if option != "5" && option != "6" {
 		time.Sleep(time.Second * 4)
 	}
 
-return true, row
+return true, row, nil
 }
 
 
