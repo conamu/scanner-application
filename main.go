@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"time"
 
 	"github.com/dgraph-io/badger/v2"
 	"github.com/spf13/viper"
@@ -46,7 +47,25 @@ func main() {
 			fmt.Println("Please enter or scan a code.")
 			scanner.Scan()
 			if viper.GetBool("useKeyValueDB") {
-				readBadger(scanner.Text())
+
+				barcode := scanner.Text()
+				//readBadger(barcode)
+				if checkItem(barcode) == true {
+					name := readName(barcode)
+					category := readCat(barcode)
+					description := readDes(barcode)
+					//in next 2 prints I am trying to make the ouptut looks like in flat-DB, but it doesn't really work
+					//i just leave it to check later
+					//fmt.Printf("====================================================\n%s == %s == %s\nDescription: %s\n", barcode, name, category, description)
+					/* 	fmt.Println("====================================================\n",
+					string(barcode),
+					" == ", string(name), "hey", " == ", string(category), "hey",
+					"\nDescription: ", string(description),
+					"\n====================================================") */
+					fmt.Printf("Barcode: %s\nName: %s\nCategory: %s\nDescription: %s\n", barcode, name, category, description)
+					time.Sleep(time.Second * 4)
+				}
+
 			} else if viper.GetBool("useFlatDB") {
 				csvRead(scanner.Text(), mainMenu.GetInputData())
 			}
