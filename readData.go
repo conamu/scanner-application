@@ -89,7 +89,7 @@ func checkItem(code string) bool {
 	err := db.View(func(txn *badger.Txn) error {
 		_, err := txn.Get([]byte(code + "Name"))
 		if err == badger.ErrKeyNotFound {
-			fmt.Println("This Item hasn't store in Database. You will be redirected to the main menu")
+			fmt.Println("This Item hasn't store in Database.")
 			return badger.ErrKeyNotFound
 		}
 		return nil
