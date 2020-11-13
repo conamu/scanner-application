@@ -2,7 +2,9 @@ package main
 
 import (
 	"encoding/csv"
+	"errors"
 	"fmt"
+	"github.com/spf13/viper"
 	"log"
 	"os"
 	"time"
@@ -19,9 +21,13 @@ func stringInSlice(a string, list []string) bool {
 	return false
 }
 
-func csvRead(code string, option string) (bool, []string) {
+func csvRead(code string, option string, validity bool) (bool, []string, error) {
+
+	if !validity {
+		return false, nil, nil
+	}
 	var row []string
-	file, err := os.OpenFile("data/testDatabase.csv", os.O_RDWR|os.O_CREATE, 0755)
+	file, err := os.OpenFile(viper.GetString("flatPath"), os.O_RDWR|os.O_CREATE, 0755)
 	defer file.Close()
 	check(err)
 	reader := csv.NewReader(file)
@@ -29,21 +35,14 @@ func csvRead(code string, option string) (bool, []string) {
 	check(err)
 	notCount := 1
 
-	// If the code matches an entry in the Databease, show the data. Else return an error.
-	for index, record := range records {
+	// If the code matches an entry in the Database, show the data. Else return an error.
+	for _, record := range records {
 		if stringInSlice(code, record) {
-			fmt.Println("====================================================\n",
-				"Nr.: ", index,
-				" == ", record[0],
-				" == ", record[1],
-				" == ", record[2],
-				"\nDescription: ", record[3],
-
-				"\n====================================================")
+			itemDisplay(record[1], record[2], record[3])
 			row = record
 		} else if code == "end" {
 			log.Println("Scanned end code, exiting!")
-			return false, row
+			return false, row, nil
 		} else if !stringInSlice(code, record) {
 			notCount++
 		}
@@ -51,13 +50,15 @@ func csvRead(code string, option string) (bool, []string) {
 
 	if notCount > len(records) {
 		fmt.Println("This code is not stored in the system.")
+
+		return true, nil, errors.New("CODE NOT FOUND")
 	}
 
 	if option != "5" && option != "6" {
 		sleep()
 	}
 
-	return true, row
+	return true, row, nil
 }
 
 func readKV(code string) bool {
@@ -84,7 +85,7 @@ func checkItem(code string) bool {
 		_, err := txn.Get([]byte(code + "Name"))
 		if err == badger.ErrKeyNotFound {
 			fmt.Println("This Item hasn't store in Database. You will be redirected to the main menu")
-			time.Sleep(time.Second * 3)
+      sleep()
 			main()
 			return nil
 		} else if err != nil {
@@ -115,6 +116,7 @@ func readName(code string) []byte {
 	})
 	check(err)
 	return nameCopy
+
 }
 
 func readCategory(code string) []byte {

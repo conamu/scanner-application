@@ -1,28 +1,26 @@
 package main
 
 import (
-	"bufio"
+	"errors"
 	"fmt"
 	"os"
 	"strconv"
-
 	"github.com/dgraph-io/badger/v2"
 )
 
 func chooseColumn() []string {
 
-	scanner := bufio.NewScanner(os.Stdin)
 	fmt.Println("Please enter or scan a code.")
-	scanner.Scan()
-	_, record := csvRead(scanner.Text(), "5")
+	code, valid := getBarcode()
+	if !valid {
+		return nil
+	}
+	_, record, err := csvRead(code, "5", valid)
+	if err != nil {
+		return nil
+	}
 
-	fmt.Printf(`Please choose which column you want to change.
-	If you want to change the Name, press 1;
-	If you want to change the Category, press 2;
-	If you want to change the Description, press 3.
-	I want to change: `)
-	scanner.Scan()
-	option, _ := strconv.Atoi(scanner.Text())
+	option, _ := strconv.Atoi(itemEditMenu())
 
 	switch option {
 	case 1:
@@ -40,6 +38,8 @@ func chooseColumn() []string {
 		scanner.Scan()
 		newDescr := scanner.Text()
 		record[3] = charLimiter(newDescr, 500)
+	case 4:
+		return nil
 	default:
 		fmt.Println("Invalid operation.")
 		chooseColumn()
@@ -51,7 +51,10 @@ func chooseColumn() []string {
 func editKVEntry() {
 	err := db.Update(func(txn *badger.Txn) error {
 		txn = db.NewTransaction(true)
-		barcode := getBarcode()
+		barcode, valid := getBarcode()
+		if !valid {
+			return errors.New("CODE NOT VALID")
+		}
 
 		nameVal, err := txn.Get([]byte(barcode + "Name"))
 		if err == badger.ErrKeyNotFound {
@@ -97,6 +100,7 @@ func editKVEntry() {
 			case "4":
 				return nil
 			default:
+				fmt.Println("Please choose a valid option!")
 				continue
 			}
 		}

@@ -6,10 +6,8 @@ import (
 	"log"
 	"os"
 	"time"
-
 	"github.com/dgraph-io/badger/v2"
 	"github.com/spf13/viper"
-
 	"github.com/conamu/cliutilsmodule/menustyling"
 )
 
@@ -35,12 +33,11 @@ func initDB() *badger.DB {
 }
 
 var db *badger.DB = initDB()
+var scanner = bufio.NewScanner(os.Stdin)
 
 func main() {
-	defer db.Close()
 	initMenus()
-
-	scanner := bufio.NewScanner(os.Stdin)
+  
 	mainMenu := menustyling.GetStoredMenu("main")
 
 	for true {
@@ -48,7 +45,7 @@ func main() {
 		switch mainMenu.GetInputData() {
 		case "1": // Get Data of one Entry
 			fmt.Println("Please enter or scan a code.")
-			scanner.Scan()
+			code, valid := getBarcode()
 			if viper.GetBool("useKeyValueDB") {
 
 				barcode := scanner.Text()
@@ -72,7 +69,7 @@ func main() {
 				sleep()
 
 			} else if viper.GetBool("useFlatDB") {
-				csvRead(scanner.Text(), mainMenu.GetInputData())
+				csvRead(code, mainMenu.GetInputData(), valid)
 			}
 		case "2": // Edit one Entry based on Barcode
 			if viper.GetBool("useKeyValueDB") {
@@ -109,8 +106,11 @@ func main() {
 			} else if viper.GetBool("useFlatDB") {
 				loop := true
 				for loop {
-					scanner.Scan()
-					loop, _ = csvRead(scanner.Text(), mainMenu.GetInputData())
+					code, valid := getBarcode()
+					loop, _, _ = csvRead(code, mainMenu.GetInputData(), valid)
+					if !valid {
+						loop = true
+					}
 				}
 			}
 		case "6": // Add endless entries, terminate with strg+c or "end" code
@@ -126,6 +126,9 @@ func main() {
 			}
 		case "q": // Quit programm
 			log.Println("pressed exit, programm Exiting.\nBye!")
+			if viper.GetBool("useKeyValueDB") {
+				db.Close()
+			}
 			os.Exit(0)
 		default:
 			continue

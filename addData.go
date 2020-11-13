@@ -1,9 +1,10 @@
 package main
 
 import (
-	"bufio"
 	"encoding/csv"
 	"fmt"
+	"github.com/dgraph-io/badger/v2"
+	"github.com/spf13/viper"
 	"io"
 	"log"
 	"os"
@@ -12,42 +13,11 @@ import (
 	"github.com/dgraph-io/badger/v2"
 )
 
-var scanner = bufio.NewScanner(os.Stdin)
-
-func getBarcode() string {
-	fmt.Print("Scan a Barcode: ")
-	scanner.Scan()
-	barcode := scanner.Text()
-
-	return barcode
-}
-
-func getParams() (name, category, description string) {
-
-	fmt.Print("Whats the Product Name? (max. 150 characters): ")
-	scanner.Scan()
-	name = scanner.Text()
-	name = charLimiter(name, 150)
-
-	fmt.Print("Whats the Product Category? (max. 20 characters): ")
-	scanner.Scan()
-	category = scanner.Text()
-	category = charLimiter(category, 20)
-
-	fmt.Print("Whats the Product Description? (max. 500 characters): ")
-	scanner.Scan()
-	description = scanner.Text()
-	description = charLimiter(description, 500)
-
-	return name, category, description
-}
-
 func writeDaten(data []string) bool {
 
-	var path = "data/testDatabase.csv"
 	//open a file with flags: to append (O_Append) and to write(O_WRONLY)
 	//FileMode (permission) - to append only
-	file, err := os.OpenFile(path, os.O_APPEND|os.O_RDWR, os.ModeAppend)
+	file, err := os.OpenFile(viper.GetString("flatPath"), os.O_APPEND|os.O_RDWR, os.ModeAppend)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -64,19 +34,23 @@ func writeDaten(data []string) bool {
 
 	if len(data) == 0 {
 
-		barcode := getBarcode()
+		barcode, valid := getBarcode()
+		if !valid {
+			return true
+		}
 
 		for _, record := range records {
 			if record[0] == barcode {
 				log.Println("The Barcode", barcode, " is already added in the System.")
+				return true
 			}
 		}
-
-		name, category, description := getParams()
-
+    
 		if barcode == "end" {
 			return false
 		}
+
+		name, category, description := getParams()
 
 		//creating a slice "product", which holds input as it's elements
 		product := []string{barcode, name, category, description}
@@ -130,7 +104,10 @@ func writeDaten(data []string) bool {
 // Function to Add Data Entries to
 func writeKvData(option int) bool {
 
-	barcode := getBarcode()
+	barcode, valid := getBarcode()
+	if !valid {
+		return true
+	}
 
 	if barcode == "end" {
 		return false
@@ -173,25 +150,6 @@ func writeKvData(option int) bool {
 	})
 	check(err)
 
-	/*  Testing
-
-		db.View(func(txn *badger.Txn) error {
-
-		txn = db.NewTransaction(false)
-		namer, _ := txn.Get([]byte(barcode + "Name"))
-		categoryr, _ := txn.Get([]byte(barcode  + "Category"))
-		descriptionr, _ := txn.Get([]byte(barcode + "Description"))
-
-		val1, _ := namer.ValueCopy(nil)
-		val2, _ := categoryr.ValueCopy(nil)
-		val3, _ := descriptionr.ValueCopy(nil)
-
-		fmt.Println(string(val1), string(val2), string(val3))
-		return nil
-	})
-
-	*/
-
 	return true
 }
 
@@ -200,6 +158,7 @@ func charLimiter(s string, limit int) string {
 	reader := strings.NewReader(s)
 	//create a buffer (slice of bytes), who's size gonna be limited
 	buff := make([]byte, limit)
+	// Fill the buff slice initially with spaces so we can TrimSpace the Strings to display them easier.
 	for i := len(s); i < len(buff); i++ {
 		buff[i] = 32
 	}
