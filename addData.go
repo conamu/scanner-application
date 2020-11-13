@@ -4,12 +4,12 @@ import (
 	"bufio"
 	"encoding/csv"
 	"fmt"
-	"github.com/dgraph-io/badger/v2"
 	"io"
 	"log"
 	"os"
 	"strings"
-	"time"
+
+	"github.com/dgraph-io/badger/v2"
 )
 
 var scanner = bufio.NewScanner(os.Stdin)
@@ -44,7 +44,6 @@ func getParams() (name, category, description string) {
 
 func writeDaten(data []string) bool {
 
-
 	var path = "data/testDatabase.csv"
 	//open a file with flags: to append (O_Append) and to write(O_WRONLY)
 	//FileMode (permission) - to append only
@@ -75,8 +74,6 @@ func writeDaten(data []string) bool {
 
 		name, category, description := getParams()
 
-
-
 		if barcode == "end" {
 			return false
 		}
@@ -86,8 +83,6 @@ func writeDaten(data []string) bool {
 
 		//appending a slice "product" to two-dimensional slice "products"
 		products = append(products, product)
-
-
 
 	} else {
 
@@ -155,11 +150,11 @@ func writeKvData(option int) bool {
 				defer txn.Discard()
 
 				// Use the Transaction
-				err := txn.Set([]byte(barcode + "Name"), []byte(name))
+				err := txn.Set([]byte(barcode+"Name"), []byte(name))
 				check(err)
-				err = txn.Set([]byte(barcode + "Category"), []byte(category))
+				err = txn.Set([]byte(barcode+"Category"), []byte(category))
 				check(err)
-				err = txn.Set([]byte(barcode + "Description"), []byte(description))
+				err = txn.Set([]byte(barcode+"Description"), []byte(description))
 				check(err)
 				err = txn.Commit()
 				check(err)
@@ -170,7 +165,7 @@ func writeKvData(option int) bool {
 		} else {
 			fmt.Println("The Barcode ", barcode, "already exists in this Database.")
 			if option != 0 {
-				time.Sleep(time.Second*3)
+				sleep()
 			}
 		}
 
@@ -178,8 +173,7 @@ func writeKvData(option int) bool {
 	})
 	check(err)
 
-
-/*  Testing
+	/*  Testing
 
 		db.View(func(txn *badger.Txn) error {
 
@@ -196,7 +190,7 @@ func writeKvData(option int) bool {
 		return nil
 	})
 
- */
+	*/
 
 	return true
 }

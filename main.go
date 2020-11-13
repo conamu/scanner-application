@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"time"
 
 	"github.com/dgraph-io/badger/v2"
 	"github.com/spf13/viper"
@@ -17,6 +18,9 @@ func check(err error) {
 		log.Fatal(err)
 		os.Exit(1)
 	}
+}
+func sleep() {
+	time.Sleep(time.Second * 3)
 }
 
 func initDB() *badger.DB {
@@ -35,6 +39,7 @@ var db *badger.DB = initDB()
 func main() {
 	defer db.Close()
 	initMenus()
+
 	scanner := bufio.NewScanner(os.Stdin)
 	mainMenu := menustyling.GetStoredMenu("main")
 
@@ -45,7 +50,27 @@ func main() {
 			fmt.Println("Please enter or scan a code.")
 			scanner.Scan()
 			if viper.GetBool("useKeyValueDB") {
-				// function for KeyValue DB
+
+				barcode := scanner.Text()
+
+				//if checkItem(barcode) {
+				/* name := readName(barcode)
+				category := readCategory(barcode)
+				description := readDescription(barcode) */
+
+				//in next 2 prints I am trying to make the ouptut looks like in flat-DB, but it doesn't really work
+				//i just leave it to check later
+				//WHY IT WORKS AS IT DOES
+				//fmt.Printf("====================================================\n%s == %s == %s\nDescription: %s\n", barcode, name, category, description)
+				/* 	fmt.Println("====================================================\n",
+				string(barcode),
+				" == ", string(name), "hey", " == ", string(category), "hey",
+				"\nDescription: ", string(description),
+				"\n====================================================") */
+
+				readKV(barcode)
+				sleep()
+
 			} else if viper.GetBool("useFlatDB") {
 				csvRead(scanner.Text(), mainMenu.GetInputData())
 			}
@@ -60,7 +85,7 @@ func main() {
 			fmt.Println("Please enter or scan a code.")
 			scanner.Scan()
 			if viper.GetBool("useKeyValueDB") {
-				// function for KeyValue DB
+				deleteBadger(scanner.Text())
 			} else if viper.GetBool("useFlatDB") {
 				deleteData(scanner.Text(), []string{})
 			}
@@ -72,7 +97,15 @@ func main() {
 			}
 		case "5": // Get data from endless codes, terminate with strg+c or "end" code
 			if viper.GetBool("useKeyValueDB") {
-				// function for KeyValue DB
+				loop := true
+				for loop {
+					fmt.Println("Please enter or scan a code.")
+					scanner.Scan()
+					code := scanner.Text()
+					loop = readKV(code)
+
+				}
+
 			} else if viper.GetBool("useFlatDB") {
 				loop := true
 				for loop {
