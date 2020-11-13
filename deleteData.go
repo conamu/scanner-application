@@ -3,8 +3,8 @@ package main
 import (
 	"encoding/csv"
 	"fmt"
+	"log"
 	"os"
-	"time"
 
 	"github.com/dgraph-io/badger/v2"
 )
@@ -51,16 +51,42 @@ func deleteData(code string, newRecord []string) {
 
 func deleteBadger(code string) {
 	err := db.Update(func(txn *badger.Txn) error {
-		txn = db.NewTransaction(true)
-		_, err := txn.Get([]byte(code + "Name"))
-		check(err)
-		err = txn.Delete([]byte(code + "Name"))
-		check(err)
-		fmt.Println("Item is sucsessfuly deleted. You will be redirected to the main menu")
-		txn.Commit()
-		time.Sleep(time.Second * 4)
-		return nil
 
+		txn = db.NewTransaction(true)
+		//deleting Name
+		_, err := txn.Get([]byte(code + "Name"))
+		if err == badger.ErrKeyNotFound {
+			fmt.Println("This Item hasn't store in Database. You will be redirected to the main menu")
+			sleep()
+			main()
+			return nil
+		} else if err != nil {
+			log.Fatal(err)
+		} else {
+			//if there is a Name stored, it means, that other two values were also stored
+			//even if with leer strings
+			//so we can delete them, without checkinh, if there stored
+			err = txn.Delete([]byte(code + "Name"))
+			check(err)
+
+			//deleting Category
+			_, err = txn.Get([]byte(code + "Category"))
+			check(err)
+			err = txn.Delete([]byte(code + "Category"))
+			check(err)
+
+			//deleting Description
+			_, err = txn.Get([]byte(code + "Description"))
+			check(err)
+			err = txn.Delete([]byte(code + "Description"))
+			check(err)
+
+			fmt.Println("Item is sucsessfuly deleted. You will be redirected to the main menu")
+			txn.Commit()
+			sleep()
+			return nil
+		}
+		return nil
 	})
 	check(err)
 

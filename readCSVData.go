@@ -54,15 +54,17 @@ func csvRead(code string, option string) (bool, []string) {
 	}
 
 	if option != "5" && option != "6" {
-		time.Sleep(time.Second * 4)
+		sleep()
 	}
 
 	return true, row
 }
 
 func readKV(code string) bool {
-	checkItem(code)
+
 	if code != "end" {
+		checkItem(code)
+
 		name := readName(code)
 		category := readCategory(code)
 		description := readDescription(code)
@@ -71,7 +73,9 @@ func readKV(code string) bool {
 		return true
 	}
 	log.Println("Scanned end code, exiting!")
+	sleep()
 	return false
+
 }
 
 //this function is checking, if the Item already stored in the DB
@@ -80,7 +84,7 @@ func checkItem(code string) bool {
 		_, err := txn.Get([]byte(code + "Name"))
 		if err == badger.ErrKeyNotFound {
 			fmt.Println("This Item hasn't store in Database. You will be redirected to the main menu")
-			time.Sleep(time.Second * 4)
+			time.Sleep(time.Second * 3)
 			main()
 			return nil
 		} else if err != nil {

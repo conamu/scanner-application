@@ -3,10 +3,10 @@ package main
 import (
 	"bufio"
 	"fmt"
-	"github.com/dgraph-io/badger/v2"
 	"os"
 	"strconv"
-	"time"
+
+	"github.com/dgraph-io/badger/v2"
 )
 
 func chooseColumn() []string {
@@ -56,7 +56,7 @@ func editKVEntry() {
 		nameVal, err := txn.Get([]byte(barcode + "Name"))
 		if err == badger.ErrKeyNotFound {
 			fmt.Println("This Barcode does not Exist yet.\nPlease use the Add functionality to add it.")
-			time.Sleep(time.Second * 3)
+			sleep()
 			return nil
 		}
 		categoryVal, err := txn.Get([]byte(barcode + "Category"))

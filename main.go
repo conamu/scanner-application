@@ -19,6 +19,9 @@ func check(err error) {
 		os.Exit(1)
 	}
 }
+func sleep() {
+	time.Sleep(time.Second * 3)
+}
 
 func initDB() *badger.DB {
 	initConfig()
@@ -66,7 +69,7 @@ func main() {
 				"\n====================================================") */
 
 				readKV(barcode)
-				time.Sleep(time.Second * 4)
+				sleep()
 
 			} else if viper.GetBool("useFlatDB") {
 				csvRead(scanner.Text(), mainMenu.GetInputData())
@@ -96,15 +99,11 @@ func main() {
 			if viper.GetBool("useKeyValueDB") {
 				loop := true
 				for loop {
-
 					fmt.Println("Please enter or scan a code.")
 					scanner.Scan()
 					code := scanner.Text()
-					if code != "end" {
-						loop = readKV(code)
-					} else {
-						loop = false
-					}
+					loop = readKV(code)
+
 				}
 
 			} else if viper.GetBool("useFlatDB") {
