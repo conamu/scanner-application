@@ -60,7 +60,11 @@ func csvRead(code string, option string, validity bool) (bool, []string, error) 
 	return true, row, nil
 }
 
-func readKV(code string) bool {
+func readKV(code string, valid bool) bool {
+
+	if !valid {
+		return true
+	}
 
 	if code != "end" {
 		exists := checkItem(code)

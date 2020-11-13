@@ -11,7 +11,7 @@ import (
 	"github.com/dgraph-io/badger/v2"
 )
 
-func writeDaten(data []string) bool {
+func writeData(data []string, barcode string, valid bool) bool {
 
 	//open a file with flags: to append (O_Append) and to write(O_WRONLY)
 	//FileMode (permission) - to append only
@@ -28,11 +28,9 @@ func writeDaten(data []string) bool {
 	//creating a two-dimensional slice, where we save input-slices
 	var products [][]string
 
-	barcode := ""
-
 	if len(data) == 0 {
 
-		barcode, valid := getBarcode()
+
 		if !valid {
 			return true
 		}
@@ -100,9 +98,8 @@ func writeDaten(data []string) bool {
 }
 
 // Function to Add Data Entries to
-func writeKvData(option int) bool {
+func writeKvData(option int, barcode string, valid bool) bool {
 
-	barcode, valid := getBarcode()
 	if !valid {
 		return true
 	}

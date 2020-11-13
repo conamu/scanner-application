@@ -9,7 +9,11 @@ import (
 	"github.com/dgraph-io/badger/v2"
 )
 
-func deleteData(code string, newRecord []string) {
+func deleteData(code string, newRecord []string, valid bool) {
+
+	if !valid {
+		return
+	}
 
 	if code == "" && newRecord == nil {
 		return
@@ -54,7 +58,12 @@ func deleteData(code string, newRecord []string) {
 	writer.Flush()
 }
 
-func deleteBadger(code string) {
+func deleteBadger(code string, valid bool) {
+
+	if !valid {
+		return
+	}
+
 	err := db.Update(func(txn *badger.Txn) error {
 
 		txn = db.NewTransaction(true)

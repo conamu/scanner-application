@@ -7,7 +7,7 @@ import (
 )
 
 func getBarcode() (string, bool) {
-	fmt.Print("Scan a Barcode: ")
+	fmt.Print("Scan or enter a Barcode: ")
 	scanner.Scan()
 	scannedBarcode := scanner.Text()
 

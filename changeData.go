@@ -9,7 +9,6 @@ import (
 
 func chooseColumn() []string {
 
-	fmt.Println("Please enter or scan a code.")
 	code, valid := getBarcode()
 	if !valid {
 		return nil
@@ -47,10 +46,14 @@ func chooseColumn() []string {
 	return record
 }
 
-func editKVEntry() {
+func editKVEntry(barcode string, valid bool) {
+
+	if !valid {
+		return
+	}
+
 	err := db.Update(func(txn *badger.Txn) error {
 		txn = db.NewTransaction(true)
-		barcode, valid := getBarcode()
 		if !valid {
 			return errors.New("CODE NOT VALID")
 		}
