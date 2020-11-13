@@ -3,13 +3,11 @@ package main
 import (
 	"encoding/csv"
 	"fmt"
-	"github.com/dgraph-io/badger/v2"
 	"github.com/spf13/viper"
 	"io"
 	"log"
 	"os"
 	"strings"
-
 	"github.com/dgraph-io/badger/v2"
 )
 
