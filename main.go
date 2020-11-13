@@ -36,6 +36,11 @@ var db *badger.DB = initDB()
 var scanner = bufio.NewScanner(os.Stdin)
 
 func main() {
+
+	if _, err := os.Stat("data"); os.IsNotExist(err) {
+		os.Mkdir("data", 0755)
+	}
+
 	initMenus()
   
 	mainMenu := menustyling.GetStoredMenu("main")
