@@ -49,65 +49,43 @@ func main() {
 		mainMenu.DisplayMenu()
 		switch mainMenu.GetInputData() {
 		case "1": // Get Data of one Entry
-			fmt.Println("Please enter or scan a code.")
 			code, valid := getBarcode()
 			if viper.GetBool("useKeyValueDB") {
-
-				barcode := scanner.Text()
-
-				//if checkItem(barcode) {
-				/* name := readName(barcode)
-				category := readCategory(barcode)
-				description := readDescription(barcode) */
-
-				//in next 2 prints I am trying to make the ouptut looks like in flat-DB, but it doesn't really work
-				//i just leave it to check later
-				//WHY IT WORKS AS IT DOES
-				//fmt.Printf("====================================================\n%s == %s == %s\nDescription: %s\n", barcode, name, category, description)
-				/* 	fmt.Println("====================================================\n",
-				string(barcode),
-				" == ", string(name), "hey", " == ", string(category), "hey",
-				"\nDescription: ", string(description),
-				"\n====================================================") */
-
-				readKV(barcode)
+				readKV(code, valid)
 				sleep()
-
 			} else if viper.GetBool("useFlatDB") {
 				csvRead(code, mainMenu.GetInputData(), valid)
 			}
 		case "2": // Edit one Entry based on Barcode
+
 			if viper.GetBool("useKeyValueDB") {
-				editKVEntry()
+				barcode, valid := getBarcode()
+				editKVEntry(barcode, valid)
 			} else if viper.GetBool("useFlatDB") {
-				deleteData("", chooseColumn())
+				deleteData("", chooseColumn(), true)
 			}
 		case "3": // Delete one Entry based on Barcode
 			fmt.Println("WARNING! CODE SCANNED WILL BE PERMANENTLY ERASED FROM DATABASE!")
-			fmt.Println("Please enter or scan a code.")
-			scanner.Scan()
+			barcode, valid := getBarcode()
 			if viper.GetBool("useKeyValueDB") {
-				deleteBadger(scanner.Text())
+				deleteBadger(barcode, valid)
 			} else if viper.GetBool("useFlatDB") {
-				deleteData(scanner.Text(), []string{})
+				deleteData(barcode, []string{}, valid)
 			}
 		case "4": // Add one Entry
+			barcode, valid := getBarcode()
 			if viper.GetBool("useKeyValueDB") {
-				writeKvData(0)
+				writeKvData(0, barcode, valid)
 			} else if viper.GetBool("useFlatDB") {
-				writeDaten([]string{})
+				writeData([]string{}, barcode, valid)
 			}
 		case "5": // Get data from endless codes, terminate with strg+c or "end" code
 			if viper.GetBool("useKeyValueDB") {
 				loop := true
 				for loop {
-					fmt.Println("Please enter or scan a code.")
-					scanner.Scan()
-					code := scanner.Text()
-					loop = readKV(code)
-
+					code, valid := getBarcode()
+					loop = readKV(code, valid)
 				}
-
 			} else if viper.GetBool("useFlatDB") {
 				loop := true
 				for loop {
@@ -122,11 +100,13 @@ func main() {
 			loop := true
 			if viper.GetBool("useKeyValueDB") {
 				for loop {
-					loop = writeKvData(1)
+					barcode, valid := getBarcode()
+					loop = writeKvData(1, barcode, valid)
 				}
 			} else if viper.GetBool("useFlatDB") {
 				for loop {
-					loop = writeDaten([]string{})
+					barcode, valid := getBarcode()
+					loop = writeData([]string{}, barcode, valid)
 				}
 			}
 		case "q": // Quit programm
