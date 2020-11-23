@@ -4,6 +4,7 @@ import (
 	"encoding/csv"
 	"encoding/json"
 	"fmt"
+	"github.com/dgraph-io/badger/v2"
 	"github.com/gorilla/mux"
 	"github.com/spf13/viper"
 	"log"
@@ -63,7 +64,35 @@ func getCodeData(w http.ResponseWriter, r * http.Request) {
 		return
 
 	} else if viper.GetBool("useKeyValueDB") {
+		check(db.View(func(txn *badger.Txn) error {
+			_, err := txn.Get([]byte(code + "Name"))
+			if err == badger.ErrKeyNotFound {
+				w.WriteHeader(http.StatusNotFound)
+				w.Write([]byte("404 - Code not Found"))
+				return nil
+			}
 
+			nameVal, err := txn.Get([]byte(code+"Name"))
+			categoryVal, err := txn.Get([]byte(code+"Category"))
+			descriptionVal, err := txn.Get([]byte(code+"Description"))
+			check(err)
+
+			name, err := nameVal.ValueCopy(nil)
+			category, err := categoryVal.ValueCopy(nil)
+			description, err := descriptionVal.ValueCopy(nil)
+			check(err)
+
+			res := CodeRes{
+				Code:        code,
+				Name:        strings.TrimSpace(string(name)),
+				Category:    strings.TrimSpace(string(category)),
+				Description: strings.TrimSpace(string(description)),
+			}
+
+			json.NewEncoder(w).Encode(res)
+			return nil
+
+		}))
 	}
 
 }
