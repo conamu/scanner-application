@@ -72,7 +72,7 @@ func deleteBadger(code string, valid bool) {
 		if err == badger.ErrKeyNotFound {
 			fmt.Println("This Item hasn't store in Database. You will be redirected to the main menu")
 			sleep()
-			main()
+			completeMode()
 			return nil
 		} else if err != nil {
 			log.Fatal(err)

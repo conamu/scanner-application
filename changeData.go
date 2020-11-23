@@ -9,7 +9,7 @@ import (
 
 func chooseColumn() []string {
 
-	code, valid := getBarcode()
+	code, valid := validateBarcode(getBarcode())
 	if !valid {
 		return nil
 	}
