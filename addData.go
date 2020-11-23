@@ -15,7 +15,7 @@ func writeData(data []string, barcode string, valid bool) bool {
 
 	//open a file with flags: to append (O_Append) and to write(O_WRONLY)
 	//FileMode (permission) - to append only
-	file, err := os.OpenFile(viper.GetString("flatPath"), os.O_APPEND|os.O_RDWR, os.ModeAppend)
+	file, err := os.OpenFile(viper.GetString("flatPath"), os.O_APPEND|os.O_RDWR|os.O_CREATE, 0755)
 	if err != nil {
 		log.Fatal(err)
 	}
