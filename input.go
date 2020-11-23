@@ -6,19 +6,22 @@ import (
 	"strings"
 )
 
-func getBarcode() (string, bool) {
+func getBarcode() string {
 	fmt.Print("Scan or enter a Barcode: ")
 	scanner.Scan()
-	scannedBarcode := scanner.Text()
+	return scanner.Text()
+}
+
+func validateBarcode(inputCode string) (string, bool) {
 
 	valid := false
 	code := ""
 
-	if strings.HasPrefix(scannedBarcode, "H24") && len(scannedBarcode) < 10 {
-		code = scannedBarcode
+	if strings.HasPrefix(inputCode, "H24") && len(inputCode) < 10 {
+		code = inputCode
 		valid = true
-	} else if scannedBarcode == "end" {
-		code = scannedBarcode
+	} else if inputCode == "end" {
+		code = inputCode
 		valid = true
 	} else {
 		log.Println("Please Scan a valid Barcode.")
