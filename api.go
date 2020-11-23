@@ -40,6 +40,7 @@ func getCodeData(w http.ResponseWriter, r * http.Request) {
 	}
 
 	if viper.GetBool("useFlatDB") {
+		fmt.Println("FlatDB Read-Only mode")
 		file, err := os.OpenFile("data/database.csv", os.O_RDONLY|os.O_CREATE, 0755)
 		check(err)
 		defer file.Close()
@@ -64,6 +65,7 @@ func getCodeData(w http.ResponseWriter, r * http.Request) {
 		return
 
 	} else if viper.GetBool("useKeyValueDB") {
+		fmt.Println("Key-Value Database Read-only mode")
 		check(db.View(func(txn *badger.Txn) error {
 			_, err := txn.Get([]byte(code + "Name"))
 			if err == badger.ErrKeyNotFound {
