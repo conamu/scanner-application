@@ -4,12 +4,17 @@ import (
 	"encoding/csv"
 	"errors"
 	"fmt"
-	"github.com/spf13/viper"
 	"log"
 	"os"
 
+	"github.com/spf13/viper"
+
 	"github.com/dgraph-io/badger/v2"
 )
+
+/*
+// Articles...
+var Articles []Article */
 
 func stringInSlice(a string, list []string) bool {
 	for _, b := range list {
@@ -60,27 +65,36 @@ func csvRead(code string, option string, validity bool) (bool, []string, error) 
 	return true, row, nil
 }
 
-func readKV(code string, valid bool) bool {
+func readKV(code string, valid bool) (bool, []Article) {
 
 	if !valid {
-		return true
+		return true, nil
 	}
 
 	if code != "end" {
 		exists := checkItem(code)
 		if !exists {
-			return true
+			return true, nil
 		}
 		name := readName(code)
 		category := readCategory(code)
 		description := readDescription(code)
-		itemDisplay(string(name), string(category), string(description))
 
-		return true
+		if viper.GetBool("activateRestApi") {
+			Articles = []Article{
+				{Barcode: code, Name: string(name), Category: string(category), Description: string(description)},
+			}
+			fmt.Println(Articles)
+			handleRequests()
+		} else {
+			itemDisplay(string(name), string(category), string(description))
+		}
+
+		return true, nil
 	}
 	log.Println("Scanned end code, exiting!")
 	sleep()
-	return false
+	return false, nil
 
 }
 
@@ -156,19 +170,3 @@ func readDescription(code string) []byte {
 	check(err)
 	return desCopy
 }
-
-//I NEEDED THIS FUNCTION TO CHECK, IF MY READ FUNCTION WORKS
-//LET IT HERE JUST IN CASE
-/* func addTest() error {
-
-	fmt.Println("\nRunning SET")
-	return db.Update(
-		func(txn *badger.Txn) error {
-			if err := txn.Set([]byte("lalala"), []byte("zhuzhuzhu")); err != nil {
-				return err
-			}
-			fmt.Println("Set lalala to zhuzhuzhu")
-			return nil
-		})
-}
-*/

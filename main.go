@@ -6,8 +6,10 @@ import (
 	"log"
 	"os"
 	"time"
+
 	"github.com/dgraph-io/badger/v2"
 	"github.com/spf13/viper"
+
 	"github.com/conamu/cliutilsmodule/menustyling"
 )
 
@@ -42,22 +44,24 @@ func main() {
 	}
 
 	initMenus()
-  
+
 	mainMenu := menustyling.GetStoredMenu("main")
 
 	for true {
 		mainMenu.DisplayMenu()
 		switch mainMenu.GetInputData() {
 		case "1": // Get Data of one Entry
+
 			code, valid := getBarcode()
 			if viper.GetBool("useKeyValueDB") {
+
 				readKV(code, valid)
 				sleep()
+
 			} else if viper.GetBool("useFlatDB") {
 				csvRead(code, mainMenu.GetInputData(), valid)
 			}
 		case "2": // Edit one Entry based on Barcode
-
 			if viper.GetBool("useKeyValueDB") {
 				barcode, valid := getBarcode()
 				editKVEntry(barcode, valid)
@@ -85,7 +89,9 @@ func main() {
 				for loop {
 					code, valid := getBarcode()
 					loop = readKV(code, valid)
+
 				}
+
 			} else if viper.GetBool("useFlatDB") {
 				loop := true
 				for loop {
