@@ -13,8 +13,6 @@ import (
 	"github.com/conamu/cliutilsmodule/menustyling"
 )
 
-var wholeDB [][]string
-
 func check(err error) {
 	if err != nil {
 		log.Fatal(err)

@@ -100,15 +100,3 @@ func returnSingleArticle(w http.ResponseWriter, r *http.Request) {
 	}
 	check(err)
 }
-
-/*
- func main() {
-	fmt.Println("Rest API v 2.0 - Mux Routers")
-	Articles = []Article{
-		Article{Barcode: "1234", Name: "Cola", Category: "Drinks", Description: "Sweet soft drink"},
-		Article{Barcode: "1235", Name: "Pommes", Category: "Snacks", Description: "Makes you fat. but happy"},
-	}
-	handleRequests()
-}
-
-*/
