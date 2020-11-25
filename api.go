@@ -9,6 +9,7 @@ import (
 
 	"github.com/dgraph-io/badger/v2"
 	"github.com/gorilla/mux"
+	"github.com/spf13/viper"
 )
 
 // Article ...
@@ -24,29 +25,27 @@ var Articles []Article
 
 func handleRequests() {
 	myRouter := mux.NewRouter().StrictSlash(true)
-	//myRouter.HandleFunc("/", homePage)
-	//add articles route and map it to responsible function
-	//myRouter.HandleFunc("/articles", returnAllArticles).Methods("GET")
-	myRouter.HandleFunc("/articles/{barcode}", returnSingleArticle).Methods("GET")
-	//you can also use it without log.Fatal, but I don’t know the difference
-	log.Fatal(http.ListenAndServe(":10000", myRouter))
+	if viper.GetBool("useFlatDB") {
+		myRouter.HandleFunc("/articles/{barcode}", returnSingleArticleFlat).Methods("GET")
+	} else if viper.GetBool("useKeyValueDB") {
+		//add articles route and map it to responsible function
+		//myRouter.HandleFunc("/articles", returnAllArticles).Methods("GET")
+		myRouter.HandleFunc("/articles/{barcode}", returnSingleArticleKV).Methods("GET")
+		//you can also use it without log.Fatal, but I don’t know the difference
 
+	}
+	log.Fatal(http.ListenAndServe(":10000", myRouter))
 }
 
-/* func homePage(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintf(w, "Welcome to the HomePage!")
-	fmt.Println("Endpoint Hit: Homepage")
-
-} */
-
-func returnAllArticles(w http.ResponseWriter, r *http.Request) {
+//if I will have enough time, I would also try this one to work
+/* func returnAllArticles(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("Endpoint Hit: returnAllArticles")
 	//make the result look nicer
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(Articles)
-}
+} */
 
-func returnSingleArticle(w http.ResponseWriter, r *http.Request) {
+func returnSingleArticleKV(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set("Content-Type", "application/json")
 
@@ -93,10 +92,28 @@ func returnSingleArticle(w http.ResponseWriter, r *http.Request) {
 	//if we created a slice with not stored Barcode, we should give back an error
 	if len(name) == 0 && len(category) == 0 && len(description) == 0 {
 		http.NotFound(w, r)
-		//here suppose to be an error message (probably 404)
 	} else {
+		//here suppose to be also an information about HTTP Status, but I don’t know how to get it (yet)
 		json.NewEncoder(w).Encode(Articles)
 		fmt.Println(Articles)
 	}
 	check(err)
+}
+
+func returnSingleArticleFlat(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+
+	//taking the last part of URL, which is the barcode of the item, we are looking for
+	vars := mux.Vars(r)
+	key := vars["barcode"]
+	_, article, _ := csvRead(key, "1", true)
+	if len(article) == 0 {
+		http.NotFound(w, r)
+	} else {
+		Articles = []Article{
+			{Barcode: key, Name: strings.TrimSpace(article[0]), Category: strings.TrimSpace(article[1]), Description: strings.TrimSpace(article[2])}}
+
+		json.NewEncoder(w).Encode(Articles)
+		fmt.Println(Articles)
+	}
 }
