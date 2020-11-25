@@ -1,0 +1,5 @@
+activaterestapi: true
+dbpath: data/badger.db
+flatpath: data/database.csv
+useflatdb: false
+usekeyvaluedb: true

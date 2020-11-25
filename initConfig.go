@@ -4,8 +4,8 @@ import "github.com/spf13/viper"
 
 func initConfig() {
 	// Set configuration Defaults
-	viper.SetDefault("useFlatDB", true)
-	viper.SetDefault("useKeyValueDB", false)
+	viper.SetDefault("useFlatDB", false)
+	viper.SetDefault("useKeyValueDB", true)
 	viper.SetDefault("activateRestApi", false)
 	viper.SetDefault("dbPath", "data/badger.db")
 	viper.SetDefault("flatPath", "data/database.csv")
