@@ -11,6 +11,8 @@ import (
 	"github.com/dgraph-io/badger/v2"
 )
 
+var notFound = errors.New("CODE NOT FOUND")
+
 func stringInSlice(a string, list []string) bool {
 	for _, b := range list {
 		if b == a {
@@ -37,7 +39,6 @@ func csvRead(code string, option string, validity bool) (bool, []string, error) 
 	// If the code matches an entry in the Database, show the data. Else return an error.
 	for _, record := range records {
 		if stringInSlice(code, record) {
-			itemDisplay(record[1], record[2], record[3])
 			row = record
 		} else if code == "end" {
 			log.Println("Scanned end code, exiting!")
@@ -50,7 +51,7 @@ func csvRead(code string, option string, validity bool) (bool, []string, error) 
 	if notCount > len(records) {
 		fmt.Println("This code is not stored in the system.")
 
-		return true, nil, errors.New("CODE NOT FOUND")
+		return true, nil, notFound
 	}
 
 	if option != "5" && option != "6" {

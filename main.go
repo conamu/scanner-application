@@ -3,12 +3,12 @@ package main
 import (
 	"bufio"
 	"fmt"
+	"github.com/conamu/cliutilsmodule/menustyling"
+	"github.com/dgraph-io/badger/v2"
+	"github.com/spf13/viper"
 	"log"
 	"os"
 	"time"
-	"github.com/dgraph-io/badger/v2"
-	"github.com/spf13/viper"
-	"github.com/conamu/cliutilsmodule/menustyling"
 )
 
 func check(err error) {
@@ -61,7 +61,8 @@ func completeMode() {
 				readKV(code, valid)
 				sleep()
 			} else if viper.GetBool("useFlatDB") {
-				csvRead(code, mainMenu.GetInputData(), valid)
+				_, result, _ := csvRead(code, mainMenu.GetInputData(), valid)
+				itemDisplay(result[1], result[2], result[3])
 			}
 		case "2": // Edit one Entry based on Barcode
 

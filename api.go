@@ -1,18 +1,18 @@
 package main
 
 import (
-	"encoding/csv"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"github.com/dgraph-io/badger/v2"
 	"github.com/gorilla/mux"
 	"github.com/spf13/viper"
 	"log"
 	"net/http"
-	"os"
 	"strings"
 )
 
+// Struct for JSON data structure
 type CodeRes struct {
 	Code string `json:code`
 	Name string `json:name`
@@ -20,6 +20,7 @@ type CodeRes struct {
 	Description string `json:description`
 }
 
+// This starts up the webserver on the configured port and accepts requests.
 func requestHandler() {
 	router := mux.NewRouter().StrictSlash(true)
 	port := ":" + viper.GetString("apiEndpointPort")
@@ -28,6 +29,8 @@ func requestHandler() {
 	log.Fatal(http.ListenAndServe(port, router))
 }
 
+// This is the main fucntion that uses our built in functions to validate barcodes and, if valid, get Data from our Data backends.
+// If not valid, it will return a 406 - Not Acceptable status code. If not found, it will return a 404 - Not Found status code.
 func getCodeData(w http.ResponseWriter, r * http.Request) {
 	fmt.Println("Endpoint Hit: getCodeData")
 	inputCode := mux.Vars(r)["code"]
@@ -41,27 +44,22 @@ func getCodeData(w http.ResponseWriter, r * http.Request) {
 
 	if viper.GetBool("useFlatDB") {
 		fmt.Println("FlatDB Read-Only mode")
-		file, err := os.OpenFile("data/database.csv", os.O_RDONLY|os.O_CREATE, 0755)
-		check(err)
-		defer file.Close()
 
-		reader := csv.NewReader(file)
-		records, err := reader.ReadAll()
-
-		for _, record := range records {
-			if record[0] == code {
-				res := CodeRes{
-					Code:        strings.TrimSpace(record[0]),
-					Name:        strings.TrimSpace(record[1]),
-					Category:    strings.TrimSpace(record[2]),
-					Description: strings.TrimSpace(record[3]),
-				}
-				json.NewEncoder(w).Encode(res)
-				return
-			}
+		_, result, err := csvRead(code, "5", valid)
+		if errors.Is(err, notFound){
+			w.WriteHeader(http.StatusNotFound)
+			w.Write([]byte("404 - Code not Found."))
+			return
 		}
-		w.WriteHeader(http.StatusNotFound)
-		w.Write([]byte("404 - Code not Found."))
+
+		res := CodeRes{
+			Code:        strings.TrimSpace(result[0]),
+			Name:        strings.TrimSpace(result[1]),
+			Category:    strings.TrimSpace(result[2]),
+			Description: strings.TrimSpace(result[3]),
+		}
+
+		json.NewEncoder(w).Encode(res)
 		return
 
 	} else if viper.GetBool("useKeyValueDB") {
