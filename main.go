@@ -13,6 +13,8 @@ import (
 	"github.com/conamu/cliutilsmodule/menustyling"
 )
 
+var wholeDB [][]string
+
 func check(err error) {
 	if err != nil {
 		log.Fatal(err)
@@ -39,6 +41,10 @@ var scanner = bufio.NewScanner(os.Stdin)
 
 func main() {
 
+	if viper.GetBool("activateRestApi") {
+		fmt.Println("Rest API v 2.0 - Mux Routers")
+		handleRequests()
+	}
 	if _, err := os.Stat("data"); os.IsNotExist(err) {
 		os.Mkdir("data", 0755)
 	}
@@ -51,7 +57,6 @@ func main() {
 		mainMenu.DisplayMenu()
 		switch mainMenu.GetInputData() {
 		case "1": // Get Data of one Entry
-
 			code, valid := getBarcode()
 			if viper.GetBool("useKeyValueDB") {
 
@@ -88,7 +93,7 @@ func main() {
 				loop := true
 				for loop {
 					code, valid := getBarcode()
-					loop = readKV(code, valid)
+					loop, _ = readKV(code, valid)
 
 				}
 
