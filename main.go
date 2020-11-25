@@ -40,9 +40,10 @@ var scanner = bufio.NewScanner(os.Stdin)
 func main() {
 
 	if viper.GetBool("activateRestApi") {
-		fmt.Println("Rest API v 2.0 - Mux Routers")
+		fmt.Println("Rest API is activ")
 		handleRequests()
 	}
+
 	if _, err := os.Stat("data"); os.IsNotExist(err) {
 		os.Mkdir("data", 0755)
 	}
