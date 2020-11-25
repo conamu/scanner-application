@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"strings"
 
 	"github.com/spf13/viper"
 
@@ -75,10 +76,12 @@ func readKV(code string, valid bool) (bool, []Article) {
 		name := readName(code)
 		category := readCategory(code)
 		description := readDescription(code)
-
+		Articles = []Article{
+			{Barcode: code, Name: strings.TrimSpace(string(name)), Category: strings.TrimSpace(string(category)), Description: strings.TrimSpace(string(description))},
+		}
 		itemDisplay(string(name), string(category), string(description))
 
-		return true, nil
+		return true, Articles
 	}
 	log.Println("Scanned end code, exiting!")
 	sleep()
@@ -91,12 +94,9 @@ func checkItem(code string) bool {
 	err := db.View(func(txn *badger.Txn) error {
 		_, err := txn.Get([]byte(code + "Name"))
 		if err == badger.ErrKeyNotFound {
-			if viper.GetBool("activateRestApi") {
+			fmt.Println("This Item hasn't store in Database.")
+			return badger.ErrKeyNotFound
 
-			} else {
-				fmt.Println("This Item hasn't store in Database.")
-				return badger.ErrKeyNotFound
-			}
 		}
 		return nil
 	})
