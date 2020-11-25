@@ -1,10 +1,9 @@
 package main
 
 import (
-	"encoding/csv"
 	"encoding/json"
+	"errors"
 	"fmt"
-	"github.com/dgraph-io/badger/v2"
 	"github.com/gorilla/mux"
 	"github.com/spf13/viper"
 	"log"
@@ -29,8 +28,15 @@ func requestHandler() {
 }
 
 func getCodeData(w http.ResponseWriter, r * http.Request) {
+	w.Header().Set("Content-Type", "application/json")
 	fmt.Println("Endpoint Hit: getCodeData")
 	inputCode := mux.Vars(r)["code"]
+	if inputCode == "end" {
+		if viper.GetBool("useKeyValueDB") {
+			db.Close()
+		}
+		os.Exit(0)
+	}
 	code, valid := validateBarcode(inputCode)
 
 	if !valid {
@@ -41,60 +47,39 @@ func getCodeData(w http.ResponseWriter, r * http.Request) {
 
 	if viper.GetBool("useFlatDB") {
 		fmt.Println("FlatDB Read-Only mode")
-		file, err := os.OpenFile("data/database.csv", os.O_RDONLY|os.O_CREATE, 0755)
-		check(err)
-		defer file.Close()
 
-		reader := csv.NewReader(file)
-		records, err := reader.ReadAll()
-
-		for _, record := range records {
-			if record[0] == code {
-				res := CodeRes{
-					Code:        strings.TrimSpace(record[0]),
-					Name:        strings.TrimSpace(record[1]),
-					Category:    strings.TrimSpace(record[2]),
-					Description: strings.TrimSpace(record[3]),
-				}
-				json.NewEncoder(w).Encode(res)
-				return
-			}
+		_, record, err := csvRead(code, "5", valid)
+		if errors.Is(err, notFound) {
+			w.WriteHeader(http.StatusNotFound)
+			w.Write([]byte("404 - Code not Found."))
+			return
 		}
-		w.WriteHeader(http.StatusNotFound)
-		w.Write([]byte("404 - Code not Found."))
-		return
+
+		res := CodeRes{
+			Code:        strings.TrimSpace(record[0]),
+			Name:        strings.TrimSpace(record[1]),
+			Category:    strings.TrimSpace(record[2]),
+			Description: strings.TrimSpace(record[3]),
+		}
+		json.NewEncoder(w).Encode(res)
+
+
+
 
 	} else if viper.GetBool("useKeyValueDB") {
 		fmt.Println("Key-Value Database Read-only mode")
-		check(db.View(func(txn *badger.Txn) error {
-			_, err := txn.Get([]byte(code + "Name"))
-			if err == badger.ErrKeyNotFound {
-				w.WriteHeader(http.StatusNotFound)
-				w.Write([]byte("404 - Code not Found"))
-				return nil
-			}
+		initDB()
+		_, result := readKV(code, valid)
+		check(db.Close())
+		res := CodeRes{
+			Code:        result[0],
+			Name:        strings.TrimSpace(result[1]),
+			Category:    strings.TrimSpace(result[2]),
+			Description: strings.TrimSpace(result[3]),
+		}
 
-			nameVal, err := txn.Get([]byte(code+"Name"))
-			categoryVal, err := txn.Get([]byte(code+"Category"))
-			descriptionVal, err := txn.Get([]byte(code+"Description"))
-			check(err)
+		json.NewEncoder(w).Encode(res)
 
-			name, err := nameVal.ValueCopy(nil)
-			category, err := categoryVal.ValueCopy(nil)
-			description, err := descriptionVal.ValueCopy(nil)
-			check(err)
-
-			res := CodeRes{
-				Code:        code,
-				Name:        strings.TrimSpace(string(name)),
-				Category:    strings.TrimSpace(string(category)),
-				Description: strings.TrimSpace(string(description)),
-			}
-
-			json.NewEncoder(w).Encode(res)
-			return nil
-
-		}))
 	}
 
 }

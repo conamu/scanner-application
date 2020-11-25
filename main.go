@@ -21,21 +21,24 @@ func sleep() {
 	time.Sleep(time.Second * 3)
 }
 
-func initDB() *badger.DB {
-	initConfig()
+var db *badger.DB
+
+func initDB() {
 	var rdb *badger.DB = nil
 	if viper.GetBool("useKeyValueDB") {
 		db, err := badger.Open(badger.DefaultOptions(viper.GetString("dbPath")))
 		check(err)
 		rdb = db
 	}
-	return rdb
+	db = rdb
 }
-
-var db *badger.DB = initDB()
 var scanner = bufio.NewScanner(os.Stdin)
 
 func main() {
+	initConfig()
+	if !viper.GetBool("apiEndpointMode") {
+		initDB()
+	}
 	if viper.GetBool("apiEndpointMode") {
 		requestHandler()
 	} else if !viper.GetBool("apiEndpointMode") {
@@ -91,7 +94,7 @@ func completeMode() {
 				loop := true
 				for loop {
 					code, valid := validateBarcode(getBarcode())
-					loop = readKV(code, valid)
+					loop, _ = readKV(code, valid)
 				}
 			} else if viper.GetBool("useFlatDB") {
 				loop := true

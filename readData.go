@@ -20,6 +20,8 @@ func stringInSlice(a string, list []string) bool {
 	return false
 }
 
+var notFound = errors.New("CODE NOT FOUND")
+
 func csvRead(code string, option string, validity bool) (bool, []string, error) {
 
 	if !validity {
@@ -50,7 +52,7 @@ func csvRead(code string, option string, validity bool) (bool, []string, error) 
 	if notCount > len(records) {
 		fmt.Println("This code is not stored in the system.")
 
-		return true, nil, errors.New("CODE NOT FOUND")
+		return true, nil, notFound
 	}
 
 	if option != "5" && option != "6" {
@@ -60,27 +62,37 @@ func csvRead(code string, option string, validity bool) (bool, []string, error) 
 	return true, row, nil
 }
 
-func readKV(code string, valid bool) bool {
+func readKV(code string, valid bool) (bool, []string) {
 
 	if !valid {
-		return true
+		return true, nil
 	}
 
 	if code != "end" {
 		exists := checkItem(code)
 		if !exists {
-			return true
+			return true, nil
 		}
+
+		if viper.GetBool("apiEndpointMode") {
+			result := make([]string, 4)
+			result[0] = code
+			result[1] = string(readName(code))
+			result[2] = string(readCategory(code))
+			result[3] = string(readDescription(code))
+			return true, result
+		}
+
 		name := readName(code)
 		category := readCategory(code)
 		description := readDescription(code)
 		itemDisplay(string(name), string(category), string(description))
 
-		return true
+		return true, nil
 	}
 	log.Println("Scanned end code, exiting!")
 	sleep()
-	return false
+	return false, nil
 
 }
 
