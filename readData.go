@@ -12,10 +12,6 @@ import (
 	"github.com/dgraph-io/badger/v2"
 )
 
-/*
-// Articles...
-var Articles []Article */
-
 func stringInSlice(a string, list []string) bool {
 	for _, b := range list {
 		if b == a {
@@ -80,15 +76,7 @@ func readKV(code string, valid bool) (bool, []Article) {
 		category := readCategory(code)
 		description := readDescription(code)
 
-		if viper.GetBool("activateRestApi") {
-			Articles = []Article{
-				{Barcode: code, Name: string(name), Category: string(category), Description: string(description)},
-			}
-			fmt.Println(Articles)
-			handleRequests()
-		} else {
-			itemDisplay(string(name), string(category), string(description))
-		}
+		itemDisplay(string(name), string(category), string(description))
 
 		return true, nil
 	}
@@ -103,8 +91,12 @@ func checkItem(code string) bool {
 	err := db.View(func(txn *badger.Txn) error {
 		_, err := txn.Get([]byte(code + "Name"))
 		if err == badger.ErrKeyNotFound {
-			fmt.Println("This Item hasn't store in Database.")
-			return badger.ErrKeyNotFound
+			if viper.GetBool("activateRestApi") {
+
+			} else {
+				fmt.Println("This Item hasn't store in Database.")
+				return badger.ErrKeyNotFound
+			}
 		}
 		return nil
 	})
