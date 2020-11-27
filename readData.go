@@ -62,16 +62,16 @@ func csvRead(code string, option string, validity bool) (bool, []string, error) 
 	return true, row, nil
 }
 
-func readKV(code string, valid bool) (bool, []string) {
+func readKV(code string, valid bool) (bool, []string, error) {
 
 	if !valid {
-		return true, nil
+		return true, nil, nil
 	}
 
 	if code != "end" {
 		exists := checkItem(code)
 		if !exists {
-			return true, nil
+			return true, nil, notFound
 		}
 
 		if viper.GetBool("apiEndpointMode") {
@@ -80,19 +80,21 @@ func readKV(code string, valid bool) (bool, []string) {
 			result[1] = string(readName(code))
 			result[2] = string(readCategory(code))
 			result[3] = string(readDescription(code))
-			return true, result
+
+			return true, result, nil
+
+		} else if !viper.GetBool("apiEndpointMode") {
+			name := readName(code)
+			category := readCategory(code)
+			description := readDescription(code)
+			itemDisplay(string(name), string(category), string(description))
+
+			return true, nil, nil
 		}
-
-		name := readName(code)
-		category := readCategory(code)
-		description := readDescription(code)
-		itemDisplay(string(name), string(category), string(description))
-
-		return true, nil
 	}
 	log.Println("Scanned end code, exiting!")
 	sleep()
-	return false, nil
+	return false, nil, nil
 
 }
 

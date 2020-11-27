@@ -35,6 +35,9 @@ func initDB() {
 var scanner = bufio.NewScanner(os.Stdin)
 
 func main() {
+	if _, err := os.Stat("data"); os.IsNotExist(err) {
+		os.Mkdir("data", 0755)
+	}
 	initConfig()
 	if !viper.GetBool("apiEndpointMode") {
 		initDB()
@@ -47,9 +50,6 @@ func main() {
 }
 
 func completeMode() {
-	if _, err := os.Stat("data"); os.IsNotExist(err) {
-		os.Mkdir("data", 0755)
-	}
 
 	initMenus()
 
@@ -94,7 +94,7 @@ func completeMode() {
 				loop := true
 				for loop {
 					code, valid := validateBarcode(getBarcode())
-					loop, _ = readKV(code, valid)
+					loop, _, _ = readKV(code, valid)
 				}
 			} else if viper.GetBool("useFlatDB") {
 				loop := true

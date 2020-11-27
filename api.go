@@ -69,7 +69,15 @@ func getCodeData(w http.ResponseWriter, r * http.Request) {
 	} else if viper.GetBool("useKeyValueDB") {
 		fmt.Println("Key-Value Database Read-only mode")
 		initDB()
-		_, result := readKV(code, valid)
+		_, result, err := readKV(code, valid)
+
+		if errors.Is(err, notFound) {
+			w.WriteHeader(http.StatusNotFound)
+			w.Write([]byte("404 - Code not Found."))
+			check(db.Close())
+			return
+		}
+
 		check(db.Close())
 		res := CodeRes{
 			Code:        result[0],
