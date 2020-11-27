@@ -88,6 +88,27 @@ func getCodeData(w http.ResponseWriter, r * http.Request) {
 
 		json.NewEncoder(w).Encode(res)
 
+	} else if viper.GetBool("useMysqlDB") {
+		fmt.Println("MySql Database Read-only mode")
+		initDB()
+		_, result, err := readSql(code, valid)
+
+		if errors.Is(err, notFound) {
+			w.WriteHeader(http.StatusNotFound)
+			w.Write([]byte("404 - Code not Found."))
+			check(mdb.Close())
+			return
+		}
+
+		check(mdb.Close())
+		res := CodeRes{
+			Code:        result[0],
+			Name:        strings.TrimSpace(result[1]),
+			Category:    strings.TrimSpace(result[2]),
+			Description: strings.TrimSpace(result[3]),
+		}
+
+		json.NewEncoder(w).Encode(res)
 	}
 
 }

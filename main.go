@@ -3,6 +3,7 @@ package main
 import (
 	"bufio"
 	"database/sql"
+	"errors"
 	"fmt"
 	"log"
 	"os"
@@ -81,6 +82,14 @@ func completeMode() {
 				sleep()
 			} else if viper.GetBool("useFlatDB") {
 				csvRead(code, mainMenu.GetInputData(), valid)
+			} else if viper.GetBool("useMysqlDB") {
+				_, record, err := readSql(code, valid)
+				if errors.Is(err, notFound) {
+					fmt.Println("This code is not stored in the Database")
+				} else {
+					itemDisplay(record[1], record[2], record[3])
+					sleep()
+				}
 			}
 		case "2": // Edit one Entry based on Barcode
 
@@ -97,6 +106,8 @@ func completeMode() {
 				deleteBadger(barcode, valid)
 			} else if viper.GetBool("useFlatDB") {
 				deleteData(barcode, []string{}, valid)
+			} else if viper.GetBool("useMysqlDB") {
+				//TODO: DELETE OPERATION
 			}
 		case "4": // Add one Entry
 			barcode, valid := validateBarcode(getBarcode())
@@ -114,11 +125,26 @@ func completeMode() {
 				}
 			} else if viper.GetBool("useFlatDB") {
 				loop := true
+				var record []string
 				for loop {
 					code, valid := validateBarcode(getBarcode())
-					loop, _, _ = csvRead(code, mainMenu.GetInputData(), valid)
+					loop, record, _ = csvRead(code, mainMenu.GetInputData(), valid)
 					if !valid {
 						loop = true
+					}
+					itemDisplay(record[1], record[2], record[3])
+				}
+			} else if viper.GetBool("useMysqlDB") {
+				loop := true
+				var record []string
+				var err error
+				for loop {
+					code, valid := validateBarcode(getBarcode())
+					loop, record, err = readSql(code, valid)
+					if errors.Is(err, notFound) {
+						fmt.Println("This code is not stored in the Database")
+					} else if loop {
+						itemDisplay(record[1], record[2], record[3])
 					}
 				}
 			}
