@@ -2,6 +2,7 @@ package main
 
 import (
 	"bufio"
+	"database/sql"
 	"fmt"
 	"log"
 	"os"
@@ -9,6 +10,7 @@ import (
 	"github.com/dgraph-io/badger/v2"
 	"github.com/spf13/viper"
 	"github.com/conamu/cliutilsmodule/menustyling"
+	_ "github.com/go-sql-driver/mysql"
 )
 
 func check(err error) {
@@ -21,16 +23,30 @@ func sleep() {
 	time.Sleep(time.Second * 3)
 }
 
-var db *badger.DB
+// Use these global db objects in application.
+var bdb *badger.DB
+var mdb *sql.DB
 
 func initDB() {
-	var rdb *badger.DB = nil
 	if viper.GetBool("useKeyValueDB") {
 		db, err := badger.Open(badger.DefaultOptions(viper.GetString("dbPath")))
 		check(err)
-		rdb = db
+		bdb = db
+	// Construct a string with all necessary details about the mysql account and server to create a db object.
+	// If it doesnt exist, create a table named product_data.
+	} else if viper.GetBool("useMysqlDB") {
+		source := viper.GetString("mysqlUser") + ":" + viper.GetString("mysqlPassword") +
+			"@tcp(" + viper.GetString("mysqlServerAddress") + ":" + viper.GetString("mysqlServerPort") +
+			")/" + viper.GetString("mysqlDatabaseName")
+
+		fmt.Println(source)
+
+		db, err := sql.Open("mysql", source)
+		check(err)
+		mdb = db
+		res, err := mdb.Exec("create table IF NOT EXISTS product_data(product_code varchar(10), product_name varchar(150), product_category varchar(20), product_description varchar(200))")
+		fmt.Println(res)
 	}
-	db = rdb
 }
 var scanner = bufio.NewScanner(os.Stdin)
 
@@ -122,7 +138,9 @@ func completeMode() {
 		case "q": // Quit programm
 			log.Println("pressed exit, programm Exiting.\nBye!")
 			if viper.GetBool("useKeyValueDB") {
-				db.Close()
+				bdb.Close()
+			} else if viper.GetBool("useMysqlDB") {
+				mdb.Close()
 			}
 			os.Exit(0)
 		default:

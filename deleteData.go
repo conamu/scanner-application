@@ -64,9 +64,9 @@ func deleteBadger(code string, valid bool) {
 		return
 	}
 
-	err := db.Update(func(txn *badger.Txn) error {
+	err := bdb.Update(func(txn *badger.Txn) error {
 
-		txn = db.NewTransaction(true)
+		txn = bdb.NewTransaction(true)
 		//deleting Name
 		_, err := txn.Get([]byte(code + "Name"))
 		if err == badger.ErrKeyNotFound {

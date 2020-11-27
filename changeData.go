@@ -52,8 +52,8 @@ func editKVEntry(barcode string, valid bool) {
 		return
 	}
 
-	err := db.Update(func(txn *badger.Txn) error {
-		txn = db.NewTransaction(true)
+	err := bdb.Update(func(txn *badger.Txn) error {
+		txn = bdb.NewTransaction(true)
 		if !valid {
 			return errors.New("CODE NOT VALID")
 		}

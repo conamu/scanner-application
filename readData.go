@@ -62,6 +62,11 @@ func csvRead(code string, option string, validity bool) (bool, []string, error) 
 	return true, row, nil
 }
 
+
+
+
+
+
 func readKV(code string, valid bool) (bool, []string, error) {
 
 	if !valid {
@@ -100,7 +105,7 @@ func readKV(code string, valid bool) (bool, []string, error) {
 
 //this function is checking, if the Item already stored in the DB
 func checkItem(code string) bool {
-	err := db.View(func(txn *badger.Txn) error {
+	err := bdb.View(func(txn *badger.Txn) error {
 		_, err := txn.Get([]byte(code + "Name"))
 		if err == badger.ErrKeyNotFound {
 			fmt.Println("This Item hasn't store in Database.")
@@ -117,7 +122,7 @@ func checkItem(code string) bool {
 func readName(code string) []byte {
 	//creating a copy of item, so we can use it later outside of transaction
 	var nameCopy []byte
-	err := db.View(func(txn *badger.Txn) error {
+	err := bdb.View(func(txn *badger.Txn) error {
 		item, err := txn.Get([]byte(code + "Name"))
 		check(err)
 
@@ -137,7 +142,7 @@ func readName(code string) []byte {
 func readCategory(code string) []byte {
 	//creating a copy of item, so we can use it later outside of transaction
 	var catCopy []byte
-	err := db.View(func(txn *badger.Txn) error {
+	err := bdb.View(func(txn *badger.Txn) error {
 		item, err := txn.Get([]byte(code + "Category"))
 		check(err)
 
@@ -156,7 +161,7 @@ func readCategory(code string) []byte {
 func readDescription(code string) []byte {
 	//creating a copy of item, so we can use it later outside of transaction
 	var desCopy []byte
-	err := db.View(func(txn *badger.Txn) error {
+	err := bdb.View(func(txn *badger.Txn) error {
 		item, err := txn.Get([]byte(code + "Description"))
 		check(err)
 		err = item.Value(func(val []byte) error {
@@ -176,7 +181,7 @@ func readDescription(code string) []byte {
 /* func addTest() error {
 
 	fmt.Println("\nRunning SET")
-	return db.Update(
+	return bdb.Update(
 		func(txn *badger.Txn) error {
 			if err := txn.Set([]byte("lalala"), []byte("zhuzhuzhu")); err != nil {
 				return err

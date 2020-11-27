@@ -33,7 +33,7 @@ func getCodeData(w http.ResponseWriter, r * http.Request) {
 	inputCode := mux.Vars(r)["code"]
 	if inputCode == "end" {
 		if viper.GetBool("useKeyValueDB") {
-			db.Close()
+			bdb.Close()
 		}
 		os.Exit(0)
 	}
@@ -74,11 +74,11 @@ func getCodeData(w http.ResponseWriter, r * http.Request) {
 		if errors.Is(err, notFound) {
 			w.WriteHeader(http.StatusNotFound)
 			w.Write([]byte("404 - Code not Found."))
-			check(db.Close())
+			check(bdb.Close())
 			return
 		}
 
-		check(db.Close())
+		check(bdb.Close())
 		res := CodeRes{
 			Code:        result[0],
 			Name:        strings.TrimSpace(result[1]),

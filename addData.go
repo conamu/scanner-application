@@ -108,17 +108,17 @@ func writeKvData(option int, barcode string, valid bool) bool {
 		return false
 	}
 
-	err := db.View(func(txn *badger.Txn) error {
+	err := bdb.View(func(txn *badger.Txn) error {
 
-		txn = db.NewTransaction(false)
+		txn = bdb.NewTransaction(false)
 		_, err := txn.Get([]byte(barcode + "Name"))
 		if err == badger.ErrKeyNotFound {
 			name, category, description := getParams()
 			// Initialize a Read-Write Transaction
-			err = db.Update(func(txn *badger.Txn) error {
+			err = bdb.Update(func(txn *badger.Txn) error {
 
 				// Create the Transaction, make it writable.
-				txn = db.NewTransaction(true)
+				txn = bdb.NewTransaction(true)
 				defer txn.Discard()
 
 				// Use the Transaction
