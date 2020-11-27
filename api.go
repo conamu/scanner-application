@@ -100,13 +100,13 @@ func getCodeData(w http.ResponseWriter, r * http.Request) {
 			return
 		}
 
-		check(mdb.Close())
 		res := CodeRes{
 			Code:        result[0],
 			Name:        strings.TrimSpace(result[1]),
 			Category:    strings.TrimSpace(result[2]),
 			Description: strings.TrimSpace(result[3]),
 		}
+		check(mdb.Close())
 
 		json.NewEncoder(w).Encode(res)
 	}

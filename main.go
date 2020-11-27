@@ -107,7 +107,7 @@ func completeMode() {
 			} else if viper.GetBool("useFlatDB") {
 				deleteData(barcode, []string{}, valid)
 			} else if viper.GetBool("useMysqlDB") {
-				//TODO: DELETE OPERATION
+				deleteSql(barcode, valid)
 			}
 		case "4": // Add one Entry
 			barcode, valid := validateBarcode(getBarcode())

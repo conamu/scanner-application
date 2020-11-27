@@ -76,6 +76,7 @@ func readSql(code string, valid bool) (bool, []string, error) {
 	if row.Next() {
 		err := row.Scan(&records[0], &records[1], &records[2], &records[3])
 		check(err)
+		row.Close()
 	} else if !row.Next() {
 		return true, nil, notFound
 	}
