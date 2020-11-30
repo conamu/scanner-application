@@ -171,25 +171,35 @@ func charLimiter(s string, limit int) string {
 
 }
 
-func addSQL(db *sql.DB, code string) {
+func addSQL(db *sql.DB, barcode string, valid bool) bool {
 
-	err := db.QueryRow("SELECT product_code FROM product_data WHERE product_code = ?", code).Scan(&code)
+	if barcode == "end" {
+		return false
+	}
+	if !valid {
+		return true
+	}
+
+	err := db.QueryRow("SELECT product_code FROM product_data WHERE product_code = ?", barcode).Scan(&barcode)
 	if err != nil {
 		if err == sql.ErrNoRows {
 
 			name, category, description := getParams()
 
-			_, err := db.Exec("INSERT INTO product_data VALUES (?, ?, ?, ?)", strings.TrimSpace(code), strings.TrimSpace(name), strings.TrimSpace(category), strings.TrimSpace(description))
+			_, err := db.Exec("INSERT INTO product_data VALUES (?, ?, ?, ?)", strings.TrimSpace(barcode), strings.TrimSpace(name), strings.TrimSpace(category), strings.TrimSpace(description))
 			if err != nil {
 				log.Fatal(err)
 			}
-			fmt.Println("You have successfully added an Item! You will be redirected to the main menu")
-			sleep()
+			fmt.Println("You have successfully added an Item!")
+			return true
+
 		} else {
 			log.Fatal(err)
+			return false
 		}
 	} else {
-		fmt.Println("This Item has been stored already. You will be redirected to the main menu")
-		sleep()
+		fmt.Println("The Barcode ", barcode, "already exists in this Database.")
+		return true
 	}
+
 }

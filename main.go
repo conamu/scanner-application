@@ -109,7 +109,8 @@ func completeMode() {
 			} else if viper.GetBool("useFlatDB") {
 				writeData([]string{}, barcode, valid)
 			} else if viper.GetBool("useMysqlDB") {
-				addSQL(openSQL(), barcode)
+				addSQL(openSQL(), barcode, valid)
+				sleep()
 			}
 		case "5": // Get data from endless codes, terminate with strg+c or "end" code
 			if viper.GetBool("useKeyValueDB") {
@@ -139,6 +140,11 @@ func completeMode() {
 				for loop {
 					barcode, valid := validateBarcode(getBarcode())
 					loop = writeData([]string{}, barcode, valid)
+				}
+			} else if viper.GetBool("usemysqldb") {
+				for loop {
+					barcode, valid := validateBarcode(getBarcode())
+					loop = addSQL(openSQL(), barcode, valid)
 				}
 			}
 		case "q": // Quit programm
