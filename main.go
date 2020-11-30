@@ -48,7 +48,7 @@ func openSQL() *sql.DB {
 	db, err := sql.Open("mysql", source)
 	check(err)
 	mdb = db
-	_, err = mdb.Exec("create table IF NOT EXISTS product_data(product_code varchar(10), product_name varchar(150), product_category varchar(20), product_description varchar(200))")
+	_, err = mdb.Exec("create table IF NOT EXISTS product_data(product_code varchar(10), product_name varchar(150), product_category varchar(20), product_description varchar(500))")
 	return mdb
 }
 
@@ -87,12 +87,13 @@ func completeMode() {
 				csvRead(barcode, mainMenu.GetInputData(), valid)
 			}
 		case "2": // Edit one Entry based on Barcode
-
+			barcode, valid := validateBarcode(getBarcode())
 			if viper.GetBool("useKeyValueDB") {
-				barcode, valid := validateBarcode(getBarcode())
 				editKVEntry(barcode, valid)
 			} else if viper.GetBool("useFlatDB") {
 				deleteData("", chooseColumn(), true)
+			} else if viper.GetBool("useMysqlDB") {
+				updateSQL(openSQL(), barcode, valid)
 			}
 		case "3": // Delete one Entry based on Barcode
 			fmt.Println("WARNING! CODE SCANNED WILL BE PERMANENTLY ERASED FROM DATABASE!")
@@ -113,16 +114,15 @@ func completeMode() {
 				sleep()
 			}
 		case "5": // Get data from endless codes, terminate with strg+c or "end" code
+			code, valid := validateBarcode(getBarcode())
 			if viper.GetBool("useKeyValueDB") {
 				loop := true
 				for loop {
-					code, valid := validateBarcode(getBarcode())
 					loop, _, _ = readKV(code, valid)
 				}
 			} else if viper.GetBool("useFlatDB") {
 				loop := true
 				for loop {
-					code, valid := validateBarcode(getBarcode())
 					loop, _, _ = csvRead(code, mainMenu.GetInputData(), valid)
 					if !valid {
 						loop = true
@@ -131,19 +131,17 @@ func completeMode() {
 			}
 		case "6": // Add endless entries, terminate with strg+c or "end" code
 			loop := true
+			barcode, valid := validateBarcode(getBarcode())
 			if viper.GetBool("useKeyValueDB") {
 				for loop {
-					barcode, valid := validateBarcode(getBarcode())
 					loop = writeKvData(1, barcode, valid)
 				}
 			} else if viper.GetBool("useFlatDB") {
 				for loop {
-					barcode, valid := validateBarcode(getBarcode())
 					loop = writeData([]string{}, barcode, valid)
 				}
 			} else if viper.GetBool("usemysqldb") {
 				for loop {
-					barcode, valid := validateBarcode(getBarcode())
 					loop = addSQL(openSQL(), barcode, valid)
 				}
 			}
