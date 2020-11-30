@@ -1,9 +1,12 @@
 package main
 
 import (
+	"database/sql"
 	"errors"
 	"fmt"
+	"log"
 	"strconv"
+
 	"github.com/dgraph-io/badger/v2"
 )
 
@@ -102,8 +105,7 @@ func editKVEntry(barcode string, valid bool) {
 			case "4":
 				return nil
 			default:
-				fmt.Println("Please choose a valid option!")
-				continue
+				fmt.Println("You have choosen an anvalid option! You will be redirected to the main menu")
 			}
 		}
 
@@ -112,4 +114,60 @@ func editKVEntry(barcode string, valid bool) {
 		return err
 	})
 	check(err)
+}
+
+func updateSQL(db *sql.DB, barcode string, valid bool) {
+	if barcode == "end" {
+		return
+	}
+
+	if !valid {
+		return
+	}
+	var name, category, description string
+	err := db.QueryRow("SELECT product_name, product_category, product_description FROM product_data WHERE product_code = ?", barcode).Scan(&name, &category, &description)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			fmt.Printf("The Barcode %s does not exist yet.\nPlease use the Add functionality to add it.\n", barcode)
+			sleep()
+			return
+		}
+		fmt.Println(name, category, description)
+		log.Fatal(err)
+	}
+
+	itemDisplay(name, category, description)
+	options := itemEditMenu()
+
+	switch options {
+	case "1":
+		//Name
+		fmt.Println("Please enter a new Item Name: ")
+		scanner.Scan()
+		name := scanner.Text()
+		name = charLimiter(name, 150)
+		_, err := db.Exec("UPDATE product_data SET product_name = ? WHERE product_code = ?", name, barcode)
+		check(err)
+	case "2":
+		//Category
+		fmt.Println("Please enter a new Item Category: ")
+		scanner.Scan()
+		category := scanner.Text()
+		category = charLimiter(category, 20)
+		_, err := db.Exec("UPDATE product_data SET product_category = ? WHERE product_code = ?", category, barcode)
+		check(err)
+	case "3":
+		//Description
+		fmt.Println("Please enter a new Item Description: ")
+		scanner.Scan()
+		description := scanner.Text()
+		description = charLimiter(description, 500)
+		_, err := db.Exec("UPDATE product_data SET product_description = ? WHERE product_code = ?", description, barcode)
+		check(err)
+	case "4":
+		break
+	default:
+		fmt.Println("You have choosen an anvalid option! You will be redirected to the main menu")
+
+	}
 }
