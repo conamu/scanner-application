@@ -7,10 +7,11 @@ import (
 	"log"
 	"os"
 	"time"
-	"github.com/dgraph-io/badger/v2"
-	"github.com/spf13/viper"
+
 	"github.com/conamu/cliutilsmodule/menustyling"
+	"github.com/dgraph-io/badger/v2"
 	_ "github.com/go-sql-driver/mysql"
+	"github.com/spf13/viper"
 )
 
 func check(err error) {
@@ -32,22 +33,25 @@ func initDB() {
 		db, err := badger.Open(badger.DefaultOptions(viper.GetString("dbPath")))
 		check(err)
 		bdb = db
-	// Construct a string with all necessary details about the mysql account and server to create a db object.
-	// If it doesnt exist, create a table named product_data.
+		// Construct a string with all necessary details about the mysql account and server to create a db object.
+		// If it doesnt exist, create a table named product_data.
 	} else if viper.GetBool("useMysqlDB") {
-		source := viper.GetString("mysqlUser") + ":" + viper.GetString("mysqlPassword") +
-			"@tcp(" + viper.GetString("mysqlServerAddress") + ":" + viper.GetString("mysqlServerPort") +
-			")/" + viper.GetString("mysqlDatabaseName")
-
-		fmt.Println(source)
-
-		db, err := sql.Open("mysql", source)
-		check(err)
-		mdb = db
-		res, err := mdb.Exec("create table IF NOT EXISTS product_data(product_code varchar(10), product_name varchar(150), product_category varchar(20), product_description varchar(200))")
-		fmt.Println(res)
+		openSQL()
 	}
 }
+
+func openSQL() *sql.DB {
+	source := viper.GetString("mysqlUser") + ":" + viper.GetString("mysqlPassword") +
+		"@tcp(" + viper.GetString("mysqlServerAddress") + ":" + viper.GetString("mysqlServerPort") +
+		")/" + viper.GetString("mysqlDatabaseName")
+
+	db, err := sql.Open("mysql", source)
+	check(err)
+	mdb = db
+	_, err = mdb.Exec("create table IF NOT EXISTS product_data(product_code varchar(10), product_name varchar(150), product_category varchar(20), product_description varchar(200))")
+	return mdb
+}
+
 var scanner = bufio.NewScanner(os.Stdin)
 
 func main() {
@@ -75,12 +79,12 @@ func completeMode() {
 		mainMenu.DisplayMenu()
 		switch mainMenu.GetInputData() {
 		case "1": // Get Data of one Entry
-			code, valid := validateBarcode(getBarcode())
+			barcode, valid := validateBarcode(getBarcode())
 			if viper.GetBool("useKeyValueDB") {
-				readKV(code, valid)
+				readKV(barcode, valid)
 				sleep()
 			} else if viper.GetBool("useFlatDB") {
-				csvRead(code, mainMenu.GetInputData(), valid)
+				csvRead(barcode, mainMenu.GetInputData(), valid)
 			}
 		case "2": // Edit one Entry based on Barcode
 
@@ -104,6 +108,8 @@ func completeMode() {
 				writeKvData(0, barcode, valid)
 			} else if viper.GetBool("useFlatDB") {
 				writeData([]string{}, barcode, valid)
+			} else if viper.GetBool("useMysqlDB") {
+				addSQL(openSQL(), barcode)
 			}
 		case "5": // Get data from endless codes, terminate with strg+c or "end" code
 			if viper.GetBool("useKeyValueDB") {
