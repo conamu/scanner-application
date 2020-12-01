@@ -125,10 +125,10 @@ func completeMode() {
 				sleep()
 			}
 		case "5": // Get data from endless codes, terminate with strg+c or "end" code
-			code, valid := validateBarcode(getBarcode())
 			if viper.GetBool("useKeyValueDB") {
 				loop := true
 				for loop {
+					code, valid := validateBarcode(getBarcode())
 					loop, _, _ = readKV(code, valid)
 				}
 			} else if viper.GetBool("useFlatDB") {
@@ -169,7 +169,7 @@ func completeMode() {
 				}
 			} else if viper.GetBool("usemysqldb") {
 				for loop {
-					loop = addSQL(openSQL(), barcode, valid)
+					loop = addSQL(mdb, barcode, valid)
 				}
 			}
 		case "q": // Quit programm
