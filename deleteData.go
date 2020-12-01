@@ -105,3 +105,14 @@ func deleteBadger(code string, valid bool) {
 	check(err)
 
 }
+
+func deleteSql(code string, valid bool) {
+	if !valid {
+		fmt.Println("This code is not valid.")
+		return
+	}
+	query := "delete from product_data where product_code=" + "'" + code + "'"
+	result, err := mdb.Exec(query)
+	check(err)
+	fmt.Println(result)
+}

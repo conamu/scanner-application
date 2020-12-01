@@ -39,7 +39,6 @@ func csvRead(code string, option string, validity bool) (bool, []string, error) 
 	// If the code matches an entry in the Database, show the data. Else return an error.
 	for _, record := range records {
 		if stringInSlice(code, record) {
-			itemDisplay(record[1], record[2], record[3])
 			row = record
 		} else if code == "end" {
 			log.Println("Scanned end code, exiting!")
@@ -63,7 +62,26 @@ func csvRead(code string, option string, validity bool) (bool, []string, error) 
 }
 
 
+func readSql(code string, valid bool) (bool, []string, error) {
 
+	if !valid {
+		return true, nil, nil
+	} else if code == "end" {
+		return false, nil, nil
+	}
+	records := make([]string, 4)
+	query := "select * from product_data where product_code=" + "'" + code + "'"
+	row, err := mdb.Query(query)
+	check(err)
+	if row.Next() {
+		err := row.Scan(&records[0], &records[1], &records[2], &records[3])
+		check(err)
+		row.Close()
+	} else if !row.Next() {
+		return true, nil, notFound
+	}
+	return true, records, nil
+}
 
 
 
