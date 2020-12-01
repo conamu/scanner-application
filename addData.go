@@ -1,14 +1,16 @@
 package main
 
 import (
+	"database/sql"
 	"encoding/csv"
 	"fmt"
-	"github.com/spf13/viper"
 	"io"
 	"log"
 	"os"
 	"strings"
+
 	"github.com/dgraph-io/badger/v2"
+	"github.com/spf13/viper"
 )
 
 func writeData(data []string, barcode string, valid bool) bool {
@@ -30,7 +32,6 @@ func writeData(data []string, barcode string, valid bool) bool {
 
 	if len(data) == 0 {
 
-
 		if !valid {
 			return true
 		}
@@ -41,7 +42,7 @@ func writeData(data []string, barcode string, valid bool) bool {
 				return true
 			}
 		}
-    
+
 		if barcode == "end" {
 			return false
 		}
@@ -167,5 +168,38 @@ func charLimiter(s string, limit int) string {
 		return string(buff)
 	}
 	return s
+
+}
+
+func addSQL(db *sql.DB, barcode string, valid bool) bool {
+
+	if barcode == "end" {
+		return false
+	}
+	if !valid {
+		return true
+	}
+
+	err := db.QueryRow("SELECT product_code FROM product_data WHERE product_code = ?", barcode).Scan(&barcode)
+	if err != nil {
+		if err == sql.ErrNoRows {
+
+			name, category, description := getParams()
+
+			_, err := db.Exec("INSERT INTO product_data VALUES (?, ?, ?, ?)", strings.TrimSpace(barcode), strings.TrimSpace(name), strings.TrimSpace(category), strings.TrimSpace(description))
+			if err != nil {
+				log.Fatal(err)
+			}
+			fmt.Println("You have successfully added an Item!")
+			return true
+
+		} else {
+			log.Fatal(err)
+			return false
+		}
+	} else {
+		fmt.Println("The Barcode ", barcode, "already exists in this Database.")
+		return true
+	}
 
 }
