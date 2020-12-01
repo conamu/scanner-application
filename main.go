@@ -85,9 +85,9 @@ func completeMode() {
 				readKV(barcode, valid)
 				sleep()
 			} else if viper.GetBool("useFlatDB") {
-				csvRead(code, mainMenu.GetInputData(), valid)
+				csvRead(barcode, mainMenu.GetInputData(), valid)
 			} else if viper.GetBool("useMysqlDB") {
-				_, record, err := readSql(code, valid)
+				_, record, err := readSql(barcode, valid)
 				if errors.Is(err, notFound) {
 					fmt.Println("This code is not stored in the Database")
 				} else {
