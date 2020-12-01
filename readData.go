@@ -193,19 +193,3 @@ func readDescription(code string) []byte {
 	check(err)
 	return desCopy
 }
-
-//I NEEDED THIS FUNCTION TO CHECK, IF MY READ FUNCTION WORKS
-//LET IT HERE JUST IN CASE
-/* func addTest() error {
-
-	fmt.Println("\nRunning SET")
-	return bdb.Update(
-		func(txn *badger.Txn) error {
-			if err := txn.Set([]byte("lalala"), []byte("zhuzhuzhu")); err != nil {
-				return err
-			}
-			fmt.Println("Set lalala to zhuzhuzhu")
-			return nil
-		})
-}
-*/
