@@ -4,9 +4,10 @@ import (
 	"encoding/csv"
 	"errors"
 	"fmt"
-	"github.com/spf13/viper"
 	"log"
 	"os"
+
+	"github.com/spf13/viper"
 
 	"github.com/dgraph-io/badger/v2"
 )
@@ -61,11 +62,6 @@ func csvRead(code string, option string, validity bool) (bool, []string, error) 
 
 	return true, row, nil
 }
-
-
-
-
-
 
 func readKV(code string, valid bool) (bool, []string, error) {
 
