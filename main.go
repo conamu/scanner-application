@@ -89,7 +89,7 @@ func completeMode() {
 			} else if viper.GetBool("useMysqlDB") {
 				_, record, err := readSql(barcode, valid)
 				if errors.Is(err, notFound) {
-					fmt.Println("This code is not stored in the Database")
+					fmt.Println("This code is NOT stored in the Database")
 				} else {
 					itemDisplay(record[1], record[2], record[3])
 					sleep()
